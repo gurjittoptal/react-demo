@@ -1,0 +1,33 @@
+
+.brand-name a { 
+  font-size: 3.0rem; 
+  line-height: 2.3;  
+  letter-spacing: -.1rem; 
+  text-align:center;
+}
+
+.navbar-item {
+  padding:8px 12px;
+}
+
+.top-menu {
+  width:70%;
+  padding-left:15%;
+  text-align: center;
+  margin-top:10px;
+  border-color: #e0d8c7;
+  border-style: solid;
+  border-width: 1px 0;
+  font-size: 13px;
+  font-weight: 300;
+  margin: 0 auto;
+  max-width: 380px;
+  padding: 15px 10px;
+}
+
+.top-menu .nav-link {
+  padding:5px 8px 2px;
+}
+
+.top-menu a.nav-link { color:#666; font-size:125%;}
+.top-menu a.nav-link:hover { color:#9068be;text-decoration:underline;}
