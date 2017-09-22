@@ -13,7 +13,7 @@ import Home from './components/Home';
 import Login from './components/Login';
 import Register from './components/Register';
 import Settings from './components/Settings';
-import Users from './components/Users';
+import Users from './components/users/Users';
 
 ReactDOM.render((
   <Provider store={store}>

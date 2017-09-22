@@ -5,6 +5,7 @@ export const HOME_PAGE_LOADED = 'HOME_PAGE_LOADED';
 export const HOME_PAGE_UNLOADED = 'HOME_PAGE_UNLOADED';
 export const USERS_PAGE_LOADED =  'USERS_PAGE_LOADED'
 export const USERS_PAGE_UNLOADED =  'USERS_PAGE_UNLOADED'
+export const SET_USER_PAGE = 'SET_USER_PAGE'
 export const SET_PAGE = 'SET_PAGE';
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';

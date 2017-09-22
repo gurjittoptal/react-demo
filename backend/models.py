@@ -28,9 +28,14 @@ class UserModelHelper():
     def delete(self,auser):
         auser.delete()
 
-    def list(self):
+    def count(self):
+        count = User.all(keys_only=True).count(500)
+        return count
+
+    def list(self,lmt=5,ofst=0):
         users = []
         q = GqlQuery("SELECT * FROM User")
-        for auser in q.run():   users.append(auser)
+        for auser in q.run(limit=lmt,offset=ofst):   
+            users.append(auser)
         return users
 

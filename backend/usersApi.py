@@ -62,12 +62,22 @@ class usersAPI(webapp2.RequestHandler):
         #if not apiInstance._isallowed(self): return
         UserHelperInstance = UserModelHelper()
         
-        allusers = UserHelperInstance.list()
+        try:
+            limit = int(self.request.get('limit'))
+        except:
+            limit = 10
+
+        try:
+            offset = int(self.request.get('offset'))
+        except:
+            offset = 0
+
+        allusers = UserHelperInstance.list(limit,offset)
+        alluserscount = UserHelperInstance.count()
         jsonArray = []
         for i in range(0,len(allusers)):
             jsonArray.append({"uid":allusers[i].uid,"role":allusers[i].role,"email":allusers[i].email}) 
-        apiInstance.response(self,'{"users":'+json.dumps(jsonArray)+'}')
-
+        apiInstance.response(self,'{"users":'+json.dumps(jsonArray)+',"usercount":'+json.dumps(alluserscount)+'}')
 
 
 class userAPI(webapp2.RequestHandler):
