@@ -14,6 +14,8 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Settings from './components/Settings';
 import Users from './components/users/Users';
+import User from './components/users/User';
+import AddUser from './components/AddUser';
 
 ReactDOM.render((
   <Provider store={store}>
@@ -24,6 +26,8 @@ ReactDOM.render((
         <Route path="register" component={Register} />
         <Route path="settings" component={Settings} />
         <Route path="users" component={Users} />
+        <Route path="users/add" component={AddUser} />
+        <Route path="users/:id" component={User} />
       </Route>
     </Router>
   </Provider>

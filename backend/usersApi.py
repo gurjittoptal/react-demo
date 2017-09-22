@@ -59,7 +59,7 @@ class usersAPI(webapp2.RequestHandler):
         
     def get(self):
         apiInstance = api()
-        #if not apiInstance._isallowed(self): return
+        if not apiInstance._isallowed(self): return
         UserHelperInstance = UserModelHelper()
         
         try:
@@ -91,13 +91,14 @@ class userAPI(webapp2.RequestHandler):
         apiInstance.response(self,'{"status":"ok","message":"No Route."}')
         
     def get(self,id):
-        if not self._isallowed(): return
         apiInstance = api()
+        if not apiInstance._isallowed(self): return
+        
         UserHelperInstance = UserModelHelper()
         if id!='':
             aUser = UserHelperInstance.get('',id)
             if aUser is None:
-                apiInstance.response(self,'{"status":"ok","message":"Resource does not exist"}',404)
+                apiInstance.response(self,'{"errors":{"message":"Resource does not exist"}}',404)
                 return
             jsonUser = {"key":str(aUser.key().name()),"uid":aUser.uid,"email":aUser.email,"role":aUser.role}
             apiInstance.response(self,'{"status":"ok","message":"success","user":'+json.dumps(jsonUser)+'}')
@@ -106,7 +107,9 @@ class userAPI(webapp2.RequestHandler):
         apiInstance.response(self,'{"status":"error","message":"id of user not passed"}')
 
     def put(self,id):
-        if not self._isallowed(): return
+        apiInstance = api()
+        if not apiInstance._isallowed(self): return
+
         if id=='':
             apiInstance.response(self,'{"status":"error","message":"Resource does not exist"}',404)
             return
@@ -145,8 +148,9 @@ class userAPI(webapp2.RequestHandler):
         apiInstance.response(self,'{"status":"ok","message":"User has been updated"}')
 
     def delete(self,id):
-        if not self._isallowed(): return
         apiInstance = api()
+        if not apiInstance._isallowed(self): return
+
         UserHelperInstance = UserModelHelper()
         aUser = UserHelperInstance.get('',id)
         if aUser is None:
@@ -154,16 +158,4 @@ class userAPI(webapp2.RequestHandler):
             return
         aUser.delete()
         apiInstance.response(self,'{"status":"ok","message":"Resource deleted."}',200)
-
-
-    def _isallowed(self):
-        apiInstance = api()
-        requestUser = apiInstance.getRequestUser(self)
-        if requestUser is None:
-            apiInstance.response(self,'{"status":"error","message":"Unauthorized"}',401)
-            return False
-        if requestUser.role!='admin' and requestUser.role!='manager':
-            apiInstance.response(self,'{"status":"error","message":"Forbidden"}',403)
-            return False
-        return True
 

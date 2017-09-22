@@ -95,11 +95,10 @@ class Users extends React.Component {
           <div className="eight columns">
               <h1>User Listing</h1>
               <p>
-                <Link to="/user/add">
-                  Add new user.
+                <Link to="/users/add">
+                  Add new user
                 </Link>
               </p>
-
 
               <UsersList
                   users={this.props.users}

@@ -4,7 +4,6 @@ import _superagent from 'superagent';
 const superagent = superagentPromise(_superagent, global.Promise);
 
 //const API_ROOT = '/api';
-
 const API_ROOT = 'http://localhost:64080/api';
 
 const encode = encodeURIComponent;
@@ -45,6 +44,10 @@ const limit = (count, p) => `limit=${count}&offset=${p ? p * count : 0}`;
 const Users = {
   all: page =>
     requests.get(`/users?${limit(5, page)}`),
+  get: uid =>
+    requests.get(`/user/${uid}`),
+  del: uid =>
+    requests.del(`/user/${uid}`),
   save: user =>
     requests.put('/user', { user })
 };
