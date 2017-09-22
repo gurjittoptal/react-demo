@@ -12,7 +12,7 @@ const responseBody = res => res.body;
 let token = null;
 const tokenPlugin = req => {
   if (token) {
-    req.set('authorization', `Token ${token}`);
+    req.set('authorization', `${token}`);
   }
 }
 
@@ -32,13 +32,21 @@ const Auth = {
     requests.get('/miscl/user'),
   login: (email, password) =>
     requests.post('/miscl/login', { user: { email, password } }),
-  register: (email, password) =>
-    requests.post('/users', { user: { email, password } }),
+  register: (email, password, role) =>
+    requests.post('/users', { user: { email, password, role } }),
+  save: user =>
+    requests.put('/user', { user })
+};
+
+const Users = {
+  all: () =>
+    requests.get('/users'),
   save: user =>
     requests.put('/user', { user })
 };
 
 export default {
   Auth,
+  Users,
   setToken: _token => { token = _token; }
 };

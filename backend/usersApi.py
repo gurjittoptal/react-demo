@@ -13,15 +13,25 @@ TOKENCOOKIE = 'token'
 TOKENTTL = 3600
 
 class usersAPI(webapp2.RequestHandler):
+    def options(self):
+        self.response.headers['Access-Control-Allow-Origin'] = '*'
+        self.response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, authorization'
+        self.response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,PATCH,OPTIONS'
+
     def post(self):
         UserHelperInstance = UserModelHelper()
         apiInstance = api()
 
         payload = json.loads(self.request.body)
 
-        email = payload['user']['email']
-        password = payload['user']['password']
-        uid  = str(uuid4())
+        try:
+            email = payload['user']['email']
+            password = payload['user']['password']
+            uid  = str(uuid4())
+        except:
+            apiInstance.response(self,'{"errors":{"msg":" email and password are mandatory."}}',401)
+            return
+        
 
         if len(email)<3 or len(password)<3: #Parameters invalid
             apiInstance.response(self,'{"errors":{"lengths":" of email and password need to be greater than 2 characters."}}',401)
@@ -37,30 +47,35 @@ class usersAPI(webapp2.RequestHandler):
                 
                 UtilitiesInstance = UtilitiesHelper()
                 token = UtilitiesInstance.AESencrypt(aUser.key().name()+'||'+ str(datetime.datetime.now())) # Session Token
-                if apiInstance.getRequestUser(self) is None: #SET TOKEN only for new user
-                    self.response.set_cookie(TOKENCOOKIE, token, expires=(datetime.datetime.now()+datetime.timedelta(seconds=TOKENTTL)), path='/')
-                else:
-                    role = self.request.get('role')
-                    if role=='admin' or role=='manager':
-                        aUser.role = role
-                        aUser.put()
+                
+                try:
+                    role = payload['user']['role']
+                    aUser.role = role
+                    aUser.put()
+                except:
+                    msg = 'No role passed'
                     
                 apiInstance.response(self,'{"user":{"role":'+json.dumps(aUser.role)+',"email":'+json.dumps(aUser.email)+',"token":'+json.dumps(token)+',"key":'+json.dumps(str(aUser.key().name()))+'}}')
         
     def get(self):
-        if not self._isallowed(): return
         apiInstance = api()
+        #if not apiInstance._isallowed(self): return
         UserHelperInstance = UserModelHelper()
         
         allusers = UserHelperInstance.list()
         jsonArray = []
         for i in range(0,len(allusers)):
-            jsonArray.append({"key":str(allusers[i].key().name()),"uid":allusers[i].uid,"role":allusers[i].role,"email":allusers[i].email}) 
-        apiInstance.response(self,'{"status":"ok","message":"Show User List","users":'+json.dumps(jsonArray)+'}')
+            jsonArray.append({"uid":allusers[i].uid,"role":allusers[i].role,"email":allusers[i].email}) 
+        apiInstance.response(self,'{"users":'+json.dumps(jsonArray)+'}')
 
 
 
 class userAPI(webapp2.RequestHandler):
+    def options(self,id):
+        self.response.headers['Access-Control-Allow-Origin'] = '*'
+        self.response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, authorization'
+        self.response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,PATCH,OPTIONS'
+
     def post(self,id):
         apiInstance = api()
         apiInstance.response(self,'{"status":"ok","message":"No Route."}')

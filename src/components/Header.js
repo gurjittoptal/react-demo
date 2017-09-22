@@ -26,18 +26,29 @@ const LoggedOutView = props => {
   return null;
 };
 
+const AuthenticatedNavView = props => {
+  if (props.currentUser.role=='manager') {
+    return (
+      <span>
+        <Link to="/users" className="nav-link">
+            Users
+        </Link>
+      </span>
+     );
+  }
+  return null;
+}
+
 const LoggedInView = props => {
   if (props.currentUser) {
     return (
       <div className="container">
           <div className="row">
             <div className="top-menu">
-                <Link to="/" className="nav-link">
+                <Link to="/repairs" className="nav-link">
                   Repairs
                 </Link>
-                <Link to="/" className="nav-link">
-                  Users
-                </Link>
+                <AuthenticatedNavView currentUser={props.currentUser} />
                 <Link to="settings" className="nav-link">
                   &nbsp;<i className="fa fa-cog" aria-hidden="true"></i>&nbsp;
                 </Link>

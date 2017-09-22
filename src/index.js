@@ -13,6 +13,7 @@ import Home from './components/Home';
 import Login from './components/Login';
 import Register from './components/Register';
 import Settings from './components/Settings';
+import Users from './components/Users';
 
 ReactDOM.render((
   <Provider store={store}>
@@ -22,6 +23,7 @@ ReactDOM.render((
         <Route path="login" component={Login} />
         <Route path="register" component={Register} />
         <Route path="settings" component={Settings} />
+        <Route path="users" component={Users} />
       </Route>
     </Router>
   </Provider>

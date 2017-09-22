@@ -17,9 +17,11 @@ class UtilitiesHelper():
 
     # returns one of None, user, admin, manager
     def getUserfromToken(self,requestObject):
-        atoken = self.get_cookie(requestObject.request,TOKENCOOKIE)
+        atoken = requestObject.request.headers['authorization']
+        
+        # fallback request param token
         if atoken=='':
-            atoken = requestObject.request.get('token')
+            atoken = requestObject.request.get('authorization')
         if atoken != '':
             try:
                 detoken = self.AESdecrypt(atoken)
@@ -108,6 +110,7 @@ class api():
         return aUser
 
     def response(self,requestObject,responseText,status=200):
+        requestObject.response.headers.add_header("Access-Control-Allow-Origin", "*")
         requestObject.response.headers['Content-Type'] = "application/json"
         requestObject.response.status = status
         fn = requestObject.request.get('fn')
@@ -115,3 +118,16 @@ class api():
             requestObject.response.write(fn+'('+responseText+')')
         else:
             requestObject.response.write(responseText)
+
+
+    def _isallowed(self,requestObject):
+        requestUser = self.getRequestUser(requestObject)
+
+        if requestUser is None:
+            self.response(requestObject,'{"errors":{"message":"Unauthorized"}}',401)
+            return False
+        
+        if requestUser.role!='admin' and requestUser.role!='manager':
+            self.response(requestObject,'{"errors":{"message":"Forbidden"}}',403)
+            return False
+        return True

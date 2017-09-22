@@ -18,8 +18,10 @@ const mapDispatchToProps = dispatch => ({
     dispatch({ type: UPDATE_FIELD_AUTH, key: 'email', value }),
   onChangePassword: value =>
     dispatch({ type: UPDATE_FIELD_AUTH, key: 'password', value }),
-  onSubmit: (email, password) => {
-    const payload = agent.Auth.register(email, password);
+  onChangeRole: value =>
+    dispatch({ type: UPDATE_FIELD_AUTH, key: 'role', value }),
+  onSubmit: (email, password, role) => {
+    const payload = agent.Auth.register(email, password, role);
     dispatch({ type: REGISTER, payload })
   },
   onUnload: () =>
@@ -31,10 +33,12 @@ class Register extends React.Component {
     super();
     this.changeEmail = ev => this.props.onChangeEmail(ev.target.value);
     this.changePassword = ev => this.props.onChangePassword(ev.target.value);
+    this.changeRole = ev => this.props.onChangeRole(ev.target.value);
 
-    this.submitForm = (email, password) => ev => {
+
+    this.submitForm = (email, password, role) => ev => {
       ev.preventDefault();
-      this.props.onSubmit(email, password);
+      this.props.onSubmit(email, password, role);
     }
   }
 
@@ -45,7 +49,8 @@ class Register extends React.Component {
   render() {
     const email = this.props.email;
     const password = this.props.password;
-    
+    const role = this.props.role;
+
     return (
       <div className="auth-page">
         <div className="container">
@@ -58,7 +63,7 @@ class Register extends React.Component {
                 </Link>
               </p>
 
-              <form onSubmit={this.submitForm(email, password)}>
+              <form onSubmit={this.submitForm(email, password, role)}>
                 <fieldset>
 
                   <fieldset className="form-group">
@@ -78,6 +83,15 @@ class Register extends React.Component {
                       value={this.props.password}
                       onChange={this.changePassword} />
                   </fieldset>
+
+                  <fieldset className="form-group">
+                    <select value={this.props.role} onChange={this.changeRole}>
+                      <option value="user">User</option>
+                      <option value="manager">Manager</option>
+                    </select>
+                  </fieldset>
+
+
                   <br/>
                   <button
                     className="button-primary"
