@@ -1,15 +1,15 @@
 import { Link } from 'react-router';
-import ListErrors from './ListErrors';
+import ListErrors from './../ListErrors';
 import React from 'react';
-import agent from '../agent';
-import './Register.css'
+import agent from '../../agent';
+import './../Register.css'
 
 import { connect } from 'react-redux';
 import {
   ADD_USER,
   ADD_USER_PAGE_UNLOADED,
   UPDATE_FIELD_AUTH
-} from '../actionTypes';
+} from '../../actionTypes';
 
 const mapStateToProps = state => ({ ...state.adduser });
 

@@ -52,8 +52,16 @@ const Users = {
     requests.put('/user', { user })
 };
 
+const Repairs = {
+  create: (payload) =>
+    requests.post('/repairs', { repair: payload }),
+  all: page =>
+    requests.get(`/repairs?${limit(5, page)}`),
+};
+
 export default {
   Auth,
+  Repairs,
   Users,
   setToken: _token => { token = _token; }
 };

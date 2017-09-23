@@ -15,7 +15,10 @@ import Register from './components/Register';
 import Settings from './components/Settings';
 import Users from './components/users/Users';
 import User from './components/users/User';
-import AddUser from './components/AddUser';
+import AddUser from './components/users/AddUser';
+import Repairs from './components/repairs/Repairs';
+import AddRepair from './components/repairs/AddRepair';
+import Repair from './components/repairs/Repair';
 
 ReactDOM.render((
   <Provider store={store}>
@@ -28,6 +31,9 @@ ReactDOM.render((
         <Route path="users" component={Users} />
         <Route path="users/add" component={AddUser} />
         <Route path="users/:id" component={User} />
+        <Route path="repairs" component={Repairs} />
+        <Route path="repairs/add" component={AddRepair} />
+        <Route path="repairs/:id" component={Repair} />
       </Route>
     </Router>
   </Provider>

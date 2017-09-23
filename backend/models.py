@@ -39,3 +39,44 @@ class UserModelHelper():
             users.append(auser)
         return users
 
+#Repair Model
+class Repair(db.Model):
+    uid = db.StringProperty(required=True,indexed=True)
+    assignedTo = db.StringProperty(required=False,indexed=True)
+    status = db.StringProperty(required=True,indexed=True)
+    scheduleDate =  db.StringProperty(required=False,indexed=False)
+    scheduleTime =  db.StringProperty(required=False,indexed=False)
+    scheduleStart =  db.IntegerProperty(required=False,indexed=True)
+    createdBy =  db.StringProperty(required=True,indexed=True)
+    descr =  db.StringProperty(required=True,indexed=False)
+    comments = db.IntegerProperty(required=False,indexed=True)
+
+class RepairModelHelper():
+    def create(self,id,assignedToval,scheduleDateval,scheduleTimeval,createdByval,descrval,scheduleStart):
+        if assignedToval =='':
+            assignedToval = 'UNASSIGNED'
+        aRepair = Repair(parent=None,key_name=id,uid=id,assignedTo=assignedToval,
+            scheduleDate=scheduleDateval,status='open',scheduleTime=scheduleTimeval,createdBy=createdByval,descr=descrval)
+        aRepair.scheduleStart = int(scheduleStart)
+        aRepair.comments = 0
+        aRepair.put()
+        return aRepair
+
+    def list(self,lmt=5,ofst=0,assignedTo=''):
+        repairs = []
+
+        if assignedTo=='':
+            q = GqlQuery("SELECT * FROM Repair")
+        else:
+            q = GqlQuery("SELECT * FROM Repair where assignedTo=:assgnto",assgnto=assignedTo)
+        for arepair in q.run(limit=lmt,offset=ofst): 
+            repairObj = {"uid":arepair.uid,"descr":arepair.descr,"assignedTo":arepair.assignedTo,"createdBy":arepair.createdBy}  
+            repairObj['comments'] = arepair.comments
+            repairObj['scheduleDate'] = arepair.scheduleDate
+            repairObj['scheduleTime'] = arepair.scheduleTime
+            repairs.append(repairObj)
+
+        return repairs
+
+
+

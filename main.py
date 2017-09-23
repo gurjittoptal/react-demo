@@ -17,6 +17,8 @@
 import webapp2
 
 app = webapp2.WSGIApplication([
+    (r'/api/repairs', 'backend.repairsApi.repairsAPI'),
+    (r'/api/repair/(.*)', 'backend.repairs.repairAPI'),
     (r'/api/users', 'backend.usersApi.usersAPI'),
     (r'/api/user/(.*)', 'backend.usersApi.userAPI'),
     (r'/api/miscl/(.*)', 'backend.misclApi.misclAPI')

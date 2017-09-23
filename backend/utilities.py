@@ -92,6 +92,46 @@ class UtilitiesHelper():
         plaintext = plaintextWithPadding[:-paddingLength]
         return plaintext
 
+    def _validatedate(self,adate):
+        dateexplode = adate.split('-')
+
+        if len(adate)!=10: return 'Invalid Date Format (use yyyy-mm-dd)'
+        if len(dateexplode)!=3: return 'Invalid Date Format (use yyyy-mm-dd)'
+        try:
+        #if 1==1:
+            year,month,day = int(dateexplode[0]),int(dateexplode[1]),int(dateexplode[2])
+            if month <1 or month>12: return 'Invalid Date. Month <1 or >12' 
+            if day<1 or day>31: return 'Invalid Date. Day<1 or >31' 
+            if month==2:
+                if day >29: return 'Invalid Date - Feb > 29'
+                if day==29 and year%4!=0: return 'Invalid Date in Feb. ' 
+            elif month in [4,6,9,11] and day==31: return 'Invalid Date. 31st in april, june sep, nov.'
+            else: return ''
+            return ''
+        except:
+            return 'Invalid Date Format (use yyyy-mm-dd)' 
+
+    def _validatetime(self,atimeinhrandmin):
+        atimeexplode = atimeinhrandmin.split(':')
+
+        if len(atimeinhrandmin)!=5: return 'Invalid Time Format (use hh:mm)'
+        if len(atimeexplode)!=2: return 'Invalid Time Format (use hh:mm)'
+        try:
+        #if 1==1:
+            hr,minute = int(atimeexplode[0]),int(atimeexplode[1])
+            if hr <0 or hr>23: return 'Invalid Time. Hour between 0-23' 
+            if minute<0 or minute>59: return 'Invalid Time. Minute between 0-59' 
+
+            return ''
+        except:
+            return 'Invalid Time Format (use hh:mm)' 
+
+    def getValueofKey(self,anObject,aKey):
+        try:
+            return anObject[aKey]
+        except:
+            return ''
+
 #Generic wrappers for api
 class api():
     def getRequestUser(self,requestObject):
