@@ -103,4 +103,30 @@ class repairAPI(webapp2.RequestHandler):
         self.response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, authorization'
         self.response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,PATCH,OPTIONS'
 
+    def get(self,id):
+        apiInstance = api()
+        RepairModelInstance = RepairModelHelper()
+
+        reqUser = apiInstance.getRequestUser(self)
+
+        isAllowed = False
+        if reqUser is None:
+            apiInstance.response(self,'{"errors":{"message":"Unauthorized"}}',401)
+            return
+        elif reqUser.role=='manager':
+            isAllowed = True 
+
+        arepair = RepairModelInstance.get(id)
+        if arepair is None:
+            apiInstance.response(self,'{"errors":{"message":"Unauthorized"}}',404)
+            return
+
+        if not isAllowed and arepair.assignedTo != reqUser.email:
+            apiInstance.response(self,'{"errors":{"message":"Unauthorized"}}',403)
+            return
+
+        repairObject = RepairModelInstance._tojson(arepair)
+        apiInstance.response(self,'{"repair":'+json.dumps(repairObject)+'}')
+
+
     

@@ -125,7 +125,6 @@ class AddRepair extends React.Component {
                       onChange={this.setScheduledTime} />
                   </fieldset>
 
-
                   <br/>
                   <button
                     className="button-primary"

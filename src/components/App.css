@@ -1320,3 +1320,24 @@ ul.pagination li{
 }
 
 li.page-item.active { background-color:#fbfbfb;}
+
+input.inp-small{width:90%;max-width:180px;font-size:65%;}
+input.inp-half{width:46%;max-width:150px;font-size:65%;}
+.label-small {font-size:70%;}
+.to-right {float:right;}
+.to-left {float:left;}
+.left-align{text-align:left;}
+.filter-form{background-color:#f2ece4;padding:8px;border:1px solid #e0d8c7;margin-bottom:10px;}
+.filter-form-label {font-size:60%;text-align:left;color:#e0d0c7;font-weight:800;}
+.status-toggle{color: #666666;text-align:left;font-weight:800;cursor:pointer;
+  background-color: #f2efe8;}
+.full-width{widht:100%;}
+.text-small {font-size:60%;}
+.text-medium {font-size:75%;}
+.bold {font-weight:800;}
+.error-message{font-size:60%;color:#dd1144;text-transform:uppercase;padding:12px 6px;}
+
+
+/*Repair Comments*/
+.comment-heading{border-bottom:1px solid #e0d8c7;}
+.comment-desc{width:100%;}

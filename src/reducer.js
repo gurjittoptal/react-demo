@@ -4,6 +4,7 @@ import addrepair from './reducers/addrepair';
 import { combineReducers } from 'redux';
 import home from './reducers/home';
 import common from './reducers/common';
+import repair from './reducers/repair';
 import repairs from './reducers/repairs';
 import user from './reducers/user';
 import users from './reducers/users';
@@ -15,6 +16,7 @@ export default combineReducers({
   addrepair,
   common,
   home,
+  repair,
   repairs,
   user,
   users,

@@ -57,10 +57,22 @@ const Repairs = {
     requests.post('/repairs', { repair: payload }),
   all: page =>
     requests.get(`/repairs?${limit(5, page)}`),
+  get: uid =>
+    requests.get(`/repair/${uid}`),
+  del: uid =>
+    requests.del(`/repair/${uid}`),
 };
+
+const Comments = {
+  create: (payload) =>
+    requests.post('/miscl/comment', { comment: payload })
+};
+
+
 
 export default {
   Auth,
+  Comments,
   Repairs,
   Users,
   setToken: _token => { token = _token; }

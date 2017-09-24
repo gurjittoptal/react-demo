@@ -4,6 +4,7 @@ import React from 'react';
 import agent from '../../agent';
 import './Repairs.css'
 import RepairsPagination from './RepairsPagination';
+import RepairsFilter from './RepairsFilter';
 
 import { connect } from 'react-redux';
 import {
@@ -34,16 +35,18 @@ const RepairPreview = props => {
       );
 };
 
+
 const RepairsList = props => {
   if (!props.repairs) {
     return (
       <div>Loading...</div>
     );
   }
-  console.log(props);
-  console.log('nn;')
   return (
     <div>
+      <RepairsFilter
+          user={props.currentUser} />
+
       <table className="u-full-width">
         <thead>
           <tr>
@@ -88,10 +91,10 @@ class Repairs extends React.Component {
       <div className="container">
 
         <div className="row content-center">
-          <div className="two columns">
+          <div className="one columns">
             &nbsp;
           </div>
-          <div className="eight columns">
+          <div className="ten columns">
               <h1>Repairs Listing</h1>
               <p>
                 <Link to="/repairs/add">

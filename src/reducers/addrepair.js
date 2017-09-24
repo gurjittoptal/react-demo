@@ -13,6 +13,7 @@ export default (state = {}, action) => {
         descr: ''
       };
     case ADD_REPAIR_PAGE_UNLOADED:
+      return {};
     default:
       return state;
   }
