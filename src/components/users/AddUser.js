@@ -1,5 +1,4 @@
 import { Link } from 'react-router';
-import ListErrors from './../ListErrors';
 import React from 'react';
 import agent from '../../agent';
 import './../Register.css'
@@ -8,18 +7,18 @@ import { connect } from 'react-redux';
 import {
   ADD_USER,
   ADD_USER_PAGE_UNLOADED,
-  UPDATE_FIELD_AUTH
+  UPDATE_FIELD_ADDUSER
 } from '../../actionTypes';
 
 const mapStateToProps = state => ({ ...state.adduser });
 
 const mapDispatchToProps = dispatch => ({
   onChangeEmail: value =>
-    dispatch({ type: UPDATE_FIELD_AUTH, key: 'email', value }),
+    dispatch({ type: UPDATE_FIELD_ADDUSER, key: 'email', value }),
   onChangePassword: value =>
-    dispatch({ type: UPDATE_FIELD_AUTH, key: 'password', value }),
+    dispatch({ type: UPDATE_FIELD_ADDUSER, key: 'password', value }),
   onChangeRole: value =>
-    dispatch({ type: UPDATE_FIELD_AUTH, key: 'role', value }),
+    dispatch({ type: UPDATE_FIELD_ADDUSER, key: 'role', value }),
   onSubmit: (email, password, role) => {
     const payload = agent.Auth.register(email, password, role);
     dispatch({ type: ADD_USER, payload })
@@ -28,15 +27,6 @@ const mapDispatchToProps = dispatch => ({
     dispatch({ type: ADD_USER_PAGE_UNLOADED })
 });
 
-const AddUserSuccessMessage = props => {
-  if (props.isUserCreated) {
-    return (
-      <div>User has been created.</div>
-    );
-  }
-
-  return null;
-}
 
 class AddUser extends React.Component {
   constructor() {
@@ -112,9 +102,9 @@ class AddUser extends React.Component {
 
                 </fieldset>
 
-                <ListErrors errors={this.props.errors} />
-                <AddUserSuccessMessage isUserCreated={this.props.isUserCreated} />
-
+                <span className="error-message">{this.props.errors}</span>
+                <span className="success-message">{this.props.success}</span>
+                
               </form>
             </div>
 

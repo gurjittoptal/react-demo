@@ -79,7 +79,7 @@ class Comments extends React.Component {
               <br/>
               <div className="twelve columns left-align">
                 <form onSubmit={this.createComment}>
-                  <textarea className="comment-desc text-medium"
+                  <textarea className="full-width text-medium"
                     placeholder="Enter Comment Details..."
                     value={this.state.comment}
                     onChange={this.setComment}

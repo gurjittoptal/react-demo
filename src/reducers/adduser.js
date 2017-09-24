@@ -2,18 +2,28 @@ import {
   ADD_USER,
   ADD_USER_PAGE_UNLOADED,
   ASYNC_START,
-  UPDATE_FIELD_AUTH
+  UPDATE_FIELD_ADDUSER
 } from '../actionTypes';
 
 export default (state = {}, action) => {
   switch (action.type) {
     case ADD_USER:
-      console.log('duus')
+      if(!action.error)
+        {
+            return {
+              ...state,
+              inProgress: false,
+              email:'',
+              password:'',
+              errors: '',
+              success: action.payload.message
+            };
+        }
       return {
         ...state,
         inProgress: false,
-        errors: action.error ? action.payload.errors : null,
-        isUserCreated: action.error ? false : true
+        errors: action.payload.errors,
+        success: ''
       };
     case ADD_USER_PAGE_UNLOADED:
     case ASYNC_START:
@@ -21,7 +31,7 @@ export default (state = {}, action) => {
         return { ...state, inProgress: true };
       }
       break;
-    case UPDATE_FIELD_AUTH:
+    case UPDATE_FIELD_ADDUSER:
       return { ...state, [action.key]: action.value };
     default:
       return state;

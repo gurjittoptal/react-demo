@@ -23,7 +23,7 @@ const mapDispatchToProps = dispatch => ({
 
 const RepairPreview = props => {
   return (
-    <tr className="user-preview">
+    <tr className="repair-preview">
        <td>{props.repair.descr}</td>
        <td>{props.repair.scheduleDate}<br/>{props.repair.scheduleTime}</td>
        <td>

@@ -1,5 +1,4 @@
 import { Link } from 'react-router';
-import ListErrors from './ListErrors';
 import React from 'react';
 import agent from '../agent';
 import './Register.css'
@@ -89,7 +88,7 @@ class Register extends React.Component {
 
                 </fieldset>
 
-                <ListErrors errors={this.props.errors} />
+                <span className="error-message">{this.props.errors}</span>
 
               </form>
             </div>

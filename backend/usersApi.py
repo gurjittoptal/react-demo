@@ -29,16 +29,16 @@ class usersAPI(webapp2.RequestHandler):
             password = payload['user']['password']
             uid  = str(uuid4())
         except:
-            apiInstance.response(self,'{"errors":{"msg":" email and password are mandatory."}}',401)
+            apiInstance.response(self,'{"errors":"email and password are mandatory."}',401)
             return
         
 
         if len(email)<3 or len(password)<3: #Parameters invalid
-            apiInstance.response(self,'{"errors":{"lengths":" of email and password need to be greater than 2 characters."}}',401)
+            apiInstance.response(self,'{"errors":"lengths of email and password need to be greater than 2 characters."}',401)
         else: #Paramters valid
             aUser = UserHelperInstance.get(email)
             if aUser is not None: #User Exists
-                apiInstance.response(self,'{"errors":{"email":" ('+email+') has already been taken."}}',401)
+                apiInstance.response(self,'{"errors":"('+email+') has already been taken."}',401)
                 return
             else: #Create user and sign in if needed
                 UtHI = UtilitiesHelper()
@@ -55,7 +55,7 @@ class usersAPI(webapp2.RequestHandler):
                 except:
                     msg = 'No role passed'
                     
-                apiInstance.response(self,'{"user":{"role":'+json.dumps(aUser.role)+',"email":'+json.dumps(aUser.email)+',"token":'+json.dumps(token)+',"key":'+json.dumps(str(aUser.key().name()))+'}}')
+                apiInstance.response(self,'{"message":"User added successfully.","user":{"role":'+json.dumps(aUser.role)+',"email":'+json.dumps(aUser.email)+',"token":'+json.dumps(token)+',"key":'+json.dumps(str(aUser.key().name()))+'}}')
         
     def get(self):
         apiInstance = api()

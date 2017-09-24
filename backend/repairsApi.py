@@ -27,7 +27,7 @@ class repairsAPI(webapp2.RequestHandler):
         try:
             RepairPayload = payload['repair']
         except:
-            apiInstance.response(self,'{"errors":{"msg":"No Arguments passed."}}',401)
+            apiInstance.response(self,'{"errors":"No Arguments passed."}',401)
             return
 
         UtilitiesHelperInstance = UtilitiesHelper()
@@ -37,20 +37,20 @@ class repairsAPI(webapp2.RequestHandler):
         scheduledTime = UtilitiesHelperInstance.getValueofKey(RepairPayload,'scheduledTime')
 
         createdBy = 'tba'
-        errors = {}
+        errors = ''
 
         if len(repairDescription)<5:
-            errors['descr'] = "Enter a valid Description."
+            errors = "Enter a valid Description. "
         
         scheduleStart = '1'
         if scheduledDate != '' or scheduledTime != '':
             isDateValid = UtilitiesHelperInstance._validatedate(scheduledDate)
             if isDateValid!='':
-                errors["dateinvalid"] = json.dumps(isDateValid)
+                errors += json.dumps(isDateValid)
                 
             isTimeValid = UtilitiesHelperInstance._validatetime(scheduledTime)
             if isTimeValid!='':
-                errors["timeinvalid"] = json.dumps(isTimeValid)
+                errors += json.dumps(isTimeValid)
 
             scheduleStart = scheduledDate.replace('-','')+scheduledTime.replace(':','')
                 
@@ -59,15 +59,16 @@ class repairsAPI(webapp2.RequestHandler):
 
         if len(errors)!=0:
             apiInstance.response(self,'{"errors":'+json.dumps(errors)+'}',401)
+            return
         
         try:
             RepairHelperInstance = RepairModelHelper()
             aRepair = RepairHelperInstance.create(str(uuid4()),assignedTo,scheduledDate,scheduledTime,createdBy,repairDescription,scheduleStart)
 
             repairObj = {"key":aRepair.uid}
-            apiInstance.response(self,'{"repair":'+json.dumps(repairObj)+'}')
+            apiInstance.response(self,'{"message":"Repair Successfully added","repair":'+json.dumps(repairObj)+'}')
         except:
-            apiInstance.response(self,'{"errors":{"msg":"Error while writing to DB."}}',401)
+            apiInstance.response(self,'{"errors":"Error while writing to DB."}',401)
         
 
     def get(self):

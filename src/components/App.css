@@ -1327,6 +1327,9 @@ input.inp-half{width:46%;max-width:150px;font-size:65%;}
 .to-right {float:right;}
 .to-left {float:left;}
 .left-align{text-align:left;}
+.right-align{text-align:right;}
+.center-align{text-align:center;}
+
 .filter-form{background-color:#f2ece4;padding:8px;border:1px solid #e0d8c7;margin-bottom:10px;}
 .filter-form-label {font-size:60%;text-align:left;color:#e0d0c7;font-weight:800;}
 .status-toggle{color: #666666;text-align:left;font-weight:800;cursor:pointer;
@@ -1335,9 +1338,10 @@ input.inp-half{width:46%;max-width:150px;font-size:65%;}
 .text-small {font-size:60%;}
 .text-medium {font-size:75%;}
 .bold {font-weight:800;}
-.error-message{font-size:60%;color:#dd1144;text-transform:uppercase;padding:12px 6px;}
-
+.error-message{font-size:70%;color:#dd1144;text-transform:uppercase;padding:12px 6px;}
+.success-message{font-size:70%;color:green;text-transform:uppercase;padding:12px 6px;}
 
 /*Repair Comments*/
 .comment-heading{border-bottom:1px solid #e0d8c7;}
-.comment-desc{width:100%;}
+
+.full-width{width:100%;}

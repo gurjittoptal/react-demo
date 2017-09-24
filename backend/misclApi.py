@@ -26,16 +26,16 @@ class misclAPI(webapp2.RequestHandler):
                 id = payload['user']['email']
                 password = payload['user']['password']
             except:
-                apiInstance.response(self,'{"errors":{"msg":" email and password are mandatory."}}',401)
+                apiInstance.response(self,'{"errors":"email and password are mandatory."}',401)
                 return   
             
             UserHelperInstance = UserModelHelper()
             if len(id)<3 or len(password)<3: #Paramters invalid
-                apiInstance.response(self,'{"errors":{"lengths" :"Lengths of email and password should be > 2 characters.' +id+ '"}}',401)
+                apiInstance.response(self,'{"errors" :"Lengths of email and password should be > 2 characters.' +id+ '"}',401)
                 return
             aUser = UserHelperInstance.get(id)
             if aUser is None: #User Exists
-                apiInstance.response(self,'{"errors":{"user" : "('+id+') has not been registered."}}',404)
+                apiInstance.response(self,'{"errors" : "('+id+') has not been registered."}',404)
                 return
 
             UtilitiesInstance = UtilitiesHelper()
@@ -43,12 +43,12 @@ class misclAPI(webapp2.RequestHandler):
                 token = UtilitiesInstance.AESencrypt(aUser.key().name()+'||'+str(datetime.datetime.now())) # Session Token    
                 apiInstance.response(self,'{"user":{"email":'+json.dumps(aUser.email)+',"token":'+json.dumps(token)+',"role":'+json.dumps(aUser.role)+'}}')
                 return
-            apiInstance.response(self,'{"errors":{"Password" :" is Invalid"}}',401)
+            apiInstance.response(self,'{"errors" :"Invalid Credentials."}',401)
             
         elif id=='comment':
             self._createcomment()
         else:
-            apiInstance.response(self,'{"errors":{"API" :" is invalid."}}',404)
+            apiInstance.response(self,'{"errors":"api is invalid."}}',404)
 
     def _createcomment(self):
         payload = json.loads(self.request.body)
