@@ -69,9 +69,10 @@ class misclAPI(webapp2.RequestHandler):
 
         aRepair = RepairModelInstance.get(repairid)
         
-        if aRepair is None or (reqUser.role!='manager' and reqUser.uid!=aRepair.assignedTo):
-            apiInstance.response(self,'{"error":"Invalid Resource ID passed."}',401)
-            return
+        ### Removing as (Comment on any Repairs at any time.)
+        #if aRepair is None or (reqUser.role!='manager' and reqUser.email!=aRepair.assignedTo):
+        #    apiInstance.response(self,'{"error":"Invalid Resource ID passed."}',401)
+        #    return
 
         newComment = {'uid': str(uuid4()),"ts": int(time.time()), "comment":comment,"user":reqUser.email}
         try:

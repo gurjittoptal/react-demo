@@ -14,7 +14,13 @@ export default (state = {}, action) => {
         currentPage: action.page
       };
     case REPAIRS_PAGE_LOADED:
-      console.log(action.payload[0]);
+      if(action.error)
+        return {
+          ...state,
+          repairs: null,
+          repairscount: 0,
+          currentPage: 0
+        };
       return {
         ...state,
         repairs: action.payload[0].repairs,

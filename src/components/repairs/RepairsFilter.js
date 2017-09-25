@@ -2,7 +2,6 @@ import { Link } from 'react-router';
 import ListErrors from './../ListErrors';
 import React from 'react';
 import agent from '../../agent';
-import './../Register.css'
 
 import { connect } from 'react-redux';
 import {

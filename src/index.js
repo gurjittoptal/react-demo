@@ -10,9 +10,9 @@ import { Router, Route, IndexRoute, hashHistory } from 'react-router';
 
 import App from './components/App'
 import Home from './components/Home';
-import Login from './components/Login';
-import Register from './components/Register';
-import Settings from './components/Settings';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import Settings from './components/auth/Settings';
 import Users from './components/users/Users';
 import User from './components/users/User';
 import AddUser from './components/users/AddUser';

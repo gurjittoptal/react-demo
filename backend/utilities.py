@@ -2,10 +2,13 @@ from models import UserModelHelper
 from hashlib import sha256
 from random import random
 import datetime
+import time
 
 TOKENCOOKIE = 'token'
 PASSWORDSECRETKEY = '@@KSDJDKFS!!DK'
 TOKENTTL = 3600
+SECSINHOUR = 3600
+SECSINMIN = 60
 
 # Utility functions
 # - AESencrypt : Encrypt a string
@@ -17,8 +20,11 @@ class UtilitiesHelper():
 
     # returns one of None, user, admin, manager
     def getUserfromToken(self,requestObject):
-        atoken = requestObject.request.headers['authorization']
-        
+        try:
+            atoken = requestObject.request.headers['authorization']
+        except:
+            return ''
+
         # fallback request param token
         if atoken=='':
             atoken = requestObject.request.get('authorization')
@@ -95,42 +101,48 @@ class UtilitiesHelper():
     def _validatedate(self,adate):
         dateexplode = adate.split('-')
 
-        if len(adate)!=10: return 'Invalid Date Format (use yyyy-mm-dd)'
-        if len(dateexplode)!=3: return 'Invalid Date Format (use yyyy-mm-dd)'
+        if len(adate)!=10: return 'Invalid Date Format (use yyyy-mm-dd). '
+        if len(dateexplode)!=3: return 'Invalid Date Format (use yyyy-mm-dd). '
         try:
         #if 1==1:
             year,month,day = int(dateexplode[0]),int(dateexplode[1]),int(dateexplode[2])
-            if month <1 or month>12: return 'Invalid Date. Month <1 or >12' 
-            if day<1 or day>31: return 'Invalid Date. Day<1 or >31' 
+            if month <1 or month>12: return 'Invalid Date. Month <1 or >12. ' 
+            if day<1 or day>31: return 'Invalid Date. Day<1 or >31. ' 
             if month==2:
-                if day >29: return 'Invalid Date - Feb > 29'
+                if day >29: return 'Invalid Date - Feb > 29. '
                 if day==29 and year%4!=0: return 'Invalid Date in Feb. ' 
-            elif month in [4,6,9,11] and day==31: return 'Invalid Date. 31st in april, june sep, nov.'
+            elif month in [4,6,9,11] and day==31: return 'Invalid Date. 31st in april, june sep, nov. '
             else: return ''
             return ''
         except:
-            return 'Invalid Date Format (use yyyy-mm-dd)' 
+            return 'Invalid Date Format (use yyyy-mm-dd).' 
 
     def _validatetime(self,atimeinhrandmin):
         atimeexplode = atimeinhrandmin.split(':')
 
-        if len(atimeinhrandmin)!=5: return 'Invalid Time Format (use hh:mm)'
-        if len(atimeexplode)!=2: return 'Invalid Time Format (use hh:mm)'
+        if len(atimeinhrandmin)!=5: return 'Invalid Time Format (use hh:mm). '
+        if len(atimeexplode)!=2: return 'Invalid Time Format (use hh:mm). '
         try:
         #if 1==1:
             hr,minute = int(atimeexplode[0]),int(atimeexplode[1])
-            if hr <0 or hr>23: return 'Invalid Time. Hour between 0-23' 
-            if minute<0 or minute>59: return 'Invalid Time. Minute between 0-59' 
+            if hr <0 or hr>23: return 'Invalid Time. Hour between 0-23. ' 
+            if minute<0 or minute>59: return 'Invalid Time. Minute between 0-59. ' 
 
             return ''
         except:
-            return 'Invalid Time Format (use hh:mm)' 
+            return 'Invalid Time Format (use hh:mm). ' 
 
     def getValueofKey(self,anObject,aKey):
         try:
             return anObject[aKey]
         except:
             return ''
+
+    def getScheduledTSfromDateTime(self,adate,atime):
+        dateTS = time.mktime(datetime.datetime.strptime(adate, "%Y-%m-%d").timetuple())
+        aTimeEX = atime.split(':')
+        return dateTS+int(aTimeEX[0])*SECSINHOUR+int(aTimeEX[1])*SECSINMIN
+            
 
 #Generic wrappers for api
 class api():

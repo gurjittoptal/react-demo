@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import React from 'react';
-import agent from '../agent';
+import agent from '../../agent';
 import './Register.css'
 
 import { connect } from 'react-redux';
@@ -8,9 +8,9 @@ import {
   UPDATE_FIELD_AUTH,
   REGISTER,
   REGISTER_PAGE_UNLOADED
-} from '../actionTypes';
+} from '../../actionTypes';
 
-const mapStateToProps = state => ({ ...state.auth });
+const mapStateToProps = state => ({ ...state.auth , currentUser: state.common.currentUser});
 
 const mapDispatchToProps = dispatch => ({
   onChangeEmail: value =>
@@ -44,6 +44,20 @@ class Register extends React.Component {
   render() {
     const email = this.props.email;
     const password = this.props.password;
+
+    if(this.props.currentUser)
+      return (
+        <div className="container">
+          <div className="row">
+            <div className="twelve columns center-align">
+              <br/><br/>
+              You cannot register when signed in.
+              <br/>
+
+            </div>
+          </div>
+        </div>
+      );
     
     return (
       <div className="auth-page">

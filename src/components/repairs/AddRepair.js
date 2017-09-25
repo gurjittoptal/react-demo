@@ -1,8 +1,6 @@
 import { Link } from 'react-router';
 import React from 'react';
 import agent from '../../agent';
-import './../Register.css'
-
 import { connect } from 'react-redux';
 import {
   ADD_REPAIR,
@@ -62,6 +60,34 @@ class AddRepair extends React.Component {
     const scheduledDate = this.props.scheduledDate;
     const scheduledTime = this.props.scheduledTime;
     const assignedTo = this.props.assignedTo;
+
+    if(!this.props.currentUser)
+      return (
+        <div className="container">
+          <div className="row">
+            <div className="twelve columns center-align">
+              <br/><br/>
+              You need to sign in as a manager to add a new Repair.
+              <br/>
+
+            </div>
+          </div>
+        </div>
+      );
+
+    if(this.props.currentUser.role!='manager')
+      return (
+        <div className="container">
+          <div className="row">
+            <div className="twelve columns center-align">
+              <br/><br/>
+              You need to have role <strong>Manager</strong> in order to add a new Repair.
+              <br/>
+
+            </div>
+          </div>
+        </div>
+      );
 
     return (
       <div className="container">

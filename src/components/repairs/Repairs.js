@@ -37,6 +37,7 @@ const RepairPreview = props => {
 
 
 const RepairsList = props => {
+
   if (!props.repairs) {
     return (
       <div>Loading...</div>
@@ -87,6 +88,21 @@ class Repairs extends React.Component {
   }
 
   render() {
+
+    if(!this.props.currentUser)
+      return (
+        <div className="container">
+          <div className="row">
+            <div className="twelve columns center-align">
+              <br/><br/>
+              You need to be signed in to checks Repairs List.
+              <br/>
+
+            </div>
+          </div>
+        </div>
+      );
+
     return (
       <div className="container">
 

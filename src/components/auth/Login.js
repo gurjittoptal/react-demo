@@ -1,16 +1,16 @@
 import { Link } from 'react-router';
 
 import React from 'react';
-import agent from '../agent';
+import agent from '../../agent';
 import './Login.css'
 import { connect } from 'react-redux';
 import {
   UPDATE_FIELD_AUTH,
   LOGIN,
   LOGIN_PAGE_UNLOADED
-} from '../actionTypes';
+} from '../../actionTypes';
 
-const mapStateToProps = state => ({ ...state.auth });
+const mapStateToProps = state => ({ ...state.auth, currentUser: state.common.currentUser });
 
 const mapDispatchToProps = dispatch => ({
   onChangeEmail: value =>
@@ -41,6 +41,21 @@ class Login extends React.Component {
   render() {
     const email = this.props.email;
     const password = this.props.password;
+
+    if(this.props.currentUser)
+      return (
+        <div className="container">
+          <div className="row">
+            <div className="twelve columns center-align">
+              <br/><br/>
+              You are already signed in.
+              <br/>
+
+            </div>
+          </div>
+        </div>
+      );
+
     return (
 
       <div className="auth-page">

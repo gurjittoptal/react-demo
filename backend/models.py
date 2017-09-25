@@ -2,9 +2,12 @@ from google.appengine.api import datastore
 from google.appengine.ext.db import GqlQuery
 from google.appengine.ext import db
 import json
+import datetime
 
 import logging
 from uuid import uuid4
+
+REPAIRSLOTTIME = 3600
 
 #User Model
 class User(db.Model):
@@ -58,7 +61,7 @@ class RepairModelHelper():
             assignedToval = 'UNASSIGNED'
         aRepair = Repair(parent=None,key_name=id,uid=id,assignedTo=assignedToval,
             scheduleDate=scheduleDateval,status='open',scheduleTime=scheduleTimeval,createdBy=createdByval,descr=descrval)
-        aRepair.scheduleStart = int(scheduleStart)
+        aRepair.scheduleStart = scheduleStart
         aRepair.comments = '[]'
         aRepair.put()
         return aRepair
@@ -71,6 +74,9 @@ class RepairModelHelper():
         repairObj['comments'] = arepair.comments
         repairObj['scheduleDate'] = arepair.scheduleDate
         repairObj['scheduleTime'] = arepair.scheduleTime
+        repairObj['status'] = arepair.status
+        logging.info(repairObj)
+
         try:
             comments = json.loads(arepair.comments)
         except:
@@ -89,14 +95,74 @@ class RepairModelHelper():
             q = GqlQuery("SELECT * FROM Repair")
         else:
             q = GqlQuery("SELECT * FROM Repair where assignedTo=:assgnto",assgnto=assignedTo)
+            logging.info(assignedTo)
+
         for arepair in q.run(limit=lmt,offset=ofst): 
             repairObj = {"uid":arepair.uid,"descr":arepair.descr,"assignedTo":arepair.assignedTo,"createdBy":arepair.createdBy}  
             repairObj['comments'] = arepair.comments
             repairObj['scheduleDate'] = arepair.scheduleDate
             repairObj['scheduleTime'] = arepair.scheduleTime
+            repairObj['status'] = arepair.status
             repairs.append(repairObj)
 
         return repairs
 
+    # Checks if proposed schedule is valid for a given Repair
+    def _checkProposedScheduleValidity(self,proposedStartTS,req=''):
+        
+        proposedStartTS = int(proposedStartTS)
+        logging.info(proposedStartTS)
+        q = GqlQuery("SELECT * FROM Repair where status=:astatus and scheduleStart<:psTS order by scheduleStart desc",psTS=proposedStartTS,astatus='open')
 
+        isOk = True
+        prevRepair = None
+        for arepair in q.run(limit=1):
+            logging.info('PP')
+            logging.info(arepair.scheduleStart)
+            prevRepair = arepair
+            if proposedStartTS- arepair.scheduleStart<REPAIRSLOTTIME:
+                isOk = False
+
+        q = GqlQuery("SELECT * FROM Repair where status=:astatus and scheduleStart>=:psTS order by scheduleStart asc",psTS=proposedStartTS,astatus='open')
+
+        tuples = []
+
+        for arepair in q.run(limit=24):
+            tuples.append(arepair)
+
+        if len(tuples)>0:
+            if tuples[0].scheduleStart - proposedStartTS <REPAIRSLOTTIME:
+                isOk = False
+
+        logging.info(len(tuples))
+        if isOk:
+            return 'OK'
+
+        for k in range(1,len(tuples)):
+            if tuples[k].scheduleStart - tuples[k-1].scheduleStart>=REPAIRSLOTTIME:
+                nextSlot = self._getnextAvailableSlot(tuples[k-1].scheduleStart)
+                logging.info('in next poo')
+                logging.info(nextSlot)
+                return 'Next available slot is from ' + nextSlot
+
+
+        if len(tuples)<24 and len(tuples)>0:
+            nextSlot = self._getnextAvailableSlot(tuples[len(tuples)-1].scheduleStart)
+            logging.info('in next')
+            logging.info(nextSlot)     
+            return 'Next available slot is from ' + nextSlot
+
+        if len(tuples)==0:
+            nextSlot = self._getnextAvailableSlot(prevRepair.scheduleStart)
+            logging.info('in prev')
+            logging.info(nextSlot)   
+            return 'Next available slot is from ' + nextSlot
+
+        return 'No available slot withing 24 hours from proposed slot'
+
+
+    def _getnextAvailableSlot(self,ts):
+        logging.info(datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M'))
+        logging.info(ts)
+        return datetime.datetime.fromtimestamp(ts+REPAIRSLOTTIME).strftime('%Y-%m-%d %H:%M')
 

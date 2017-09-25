@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import React from 'react';
 import agent from '../../agent';
-import './../Register.css'
+import './../auth/Register.css'
 
 import { connect } from 'react-redux';
 import {
@@ -10,7 +10,7 @@ import {
   UPDATE_FIELD_ADDUSER
 } from '../../actionTypes';
 
-const mapStateToProps = state => ({ ...state.adduser });
+const mapStateToProps = state => ({ ...state.adduser, currentUser: state.common.currentUser });
 
 const mapDispatchToProps = dispatch => ({
   onChangeEmail: value =>
@@ -50,6 +50,34 @@ class AddUser extends React.Component {
     const email = this.props.email;
     const password = this.props.password;
     const role = this.props.role;
+
+    if(!this.props.currentUser)
+      return (
+        <div className="container">
+          <div className="row">
+            <div className="twelve columns center-align">
+              <br/><br/>
+              You need to sign in as a manager to add a new user.
+              <br/>
+
+            </div>
+          </div>
+        </div>
+      );
+
+    if(!this.props.currentUser.role!='manager')
+      return (
+        <div className="container">
+          <div className="row">
+            <div className="twelve columns center-align">
+              <br/><br/>
+              You need to have role <strong>Manager</strong> in order to add a new user.
+              <br/>
+
+            </div>
+          </div>
+        </div>
+      );
 
     return (
       <div className="auth-page">

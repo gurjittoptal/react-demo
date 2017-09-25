@@ -61,6 +61,8 @@ const Repairs = {
     requests.get(`/repair/${uid}`),
   del: uid =>
     requests.del(`/repair/${uid}`),
+  changestate: (uid,astate) =>
+    requests.put(`/repair/${uid}`, { state: astate, method: 'changestate' }),
 };
 
 const Comments = {

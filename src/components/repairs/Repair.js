@@ -4,6 +4,7 @@ import React from 'react';
 import agent from '../../agent';
 import { connect } from 'react-redux';
 import DeleteRepairButton from './DeleteRepairButton';
+import RepairUpdates from './RepairUpdates';
 import Comments from './Comments';
 
 import {
@@ -13,7 +14,7 @@ import {
 } from '../../actionTypes';
 
 
-const mapStateToProps = state => ({ ...state.repair });
+const mapStateToProps = state => ({ ...state.repair, currentUser: state.common.currentUser  });
 
 const mapDispatchToProps = dispatch => ({
   onLoad: (payload) =>
@@ -27,6 +28,12 @@ const RepairDetails = props => {
   if (props.isdeleted) {
     return (
       <div>Repair does not exist!</div>
+    );
+  }
+
+  if (props.errors) {
+    return (
+      <div>{props.errors}</div>
     );
   }
 
@@ -54,10 +61,14 @@ const RepairDetails = props => {
           <div className="text-small bold">REPAIR DETAILS</div>
           <div className="text-medium">{props.repair.descr}</div>
         </div>
+        <div className="six columns left-align">
+          <br/>
+          <div className="text-small bold">STATUS</div>
+          <div className="text-medium">{props.repair.status}</div>
+        </div>
       </div>
-      <div className="row">
-        <DeleteRepairButton repair={props.repair}/>
-      </div>
+      <br/> 
+      <RepairUpdates repair={props.repair} user={props.user}/>
       <Comments repair={props.repair} commenterror={props.commenterror}/>
     </div>
   );
@@ -86,8 +97,9 @@ class Repair extends React.Component {
           </div>
           <div className="eight columns anonymous-message">
               <RepairDetails
-                repair={this.props.repair} 
-                commenterror={this.props.commenterror}
+                repair={this.props.repair}
+                user={this.props.currentUser} 
+                errors={this.props.errors}
                 isdeleted={this.props.isdeleted} />
           </div>   
         </div>
