@@ -12,48 +12,41 @@ const mapDispatchToProps = dispatch => ({
 const RepairUpdates = props => {
   const repair = props.repair;
   const user = props.user;
-  
-  const changestatus = (i) => {
-    if(repair.status=='INCOMPLETE')
-      props.onClick(agent.Repairs.changestate(repair.uid,'COMPLETED'));
-    else if(repair.status=='COMPLETED')
-      props.onClick(agent.Repairs.changestate(repair.uid,'APPROVED'));
-    else if(repair.status=='APPROVED')
-      props.onClick(agent.Repairs.changestate(repair.uid,'INCOMPLETE'));
 
-    //props.onClick(agent.Repairs.changestate(repair.uid))
+  const statusincomplete = () => {
+    props.onClick(agent.Repairs.changestate(repair.uid,'INCOMPLETE'));
   };
 
-  //this.createRepair = (descrval, scheduledDateval, scheduledTimeval, assignedToval) => ev => {
-    
-  const del = () => {
-    props.onClick(agent.Repairs.del(repair.uid))
+  const statuscompleted = () => {
+    props.onClick(agent.Repairs.changestate(repair.uid,'COMPLETED'));
   };
 
-  var statusChange = (<div className="six columns" onClick={changestatus}>
-                          Change to incomplete.
-                      </div>)
+  const statusapproved = () => {
+    props.onClick(agent.Repairs.changestate(repair.uid,'APPROVED'));
+  };
+     
+  var statusChange = (<span className="purple showcursor" onClick={statusincomplete}>INCOMPLETE</span>)
 
   if(repair.status=='INCOMPLETE')
-    statusChange = (<div className="six columns" onClick={changestatus}>Change to completed.</div>)
+    statusChange = (<span className="purple showcursor" onClick={statuscompleted}>COMPLETED</span>)
     
   if(repair.status=='COMPLETED')
-    statusChange = (<div className="six columns" onClick={changestatus}>Change to approved.</div>)
+    statusChange = (<span>
+                      <span className="purple showcursor" onClick={statusincomplete}>INCOMPLETE</span>
+                      &nbsp;&nbsp;or&nbsp;&nbsp;  
+                      <span className="purple showcursor" onClick={statusapproved}>APPROVED </span>
+                    </span>
+                   )
   
 
-  if(user.role=='manager')
-    return ( <div className="row">
-        {statusChange}
-        <div className="six columns" onClick={del}>
-          <i className="fa fa-trash" aria-hidden="true"></i> Delete
-        </div>
-      </div>
-    );
-
-  if(user.email==repair.assignedTo && repair.status=='INCOMPLETE')
-    return ( <div className="row">{statusChange}</div>
-    );
-
+  if(user.role=='manager' || (user.email==repair.assignedTo && repair.status=='INCOMPLETE'))
+    return ( 
+            <div className="row filter-form">
+              <div className="twelve columns text-medium">
+                CHANGE STATUS TO {statusChange}
+              </div>
+            </div>
+      );
   return null;
 
   

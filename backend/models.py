@@ -75,8 +75,8 @@ class RepairModelHelper():
         repairObj['scheduleDate'] = arepair.scheduleDate
         repairObj['scheduleTime'] = arepair.scheduleTime
         repairObj['status'] = arepair.status
-        logging.info(repairObj)
-
+        repairObj['assignedTo'] = arepair.assignedTo
+        
         try:
             comments = json.loads(arepair.comments)
         except:
@@ -98,11 +98,7 @@ class RepairModelHelper():
             logging.info(assignedTo)
 
         for arepair in q.run(limit=lmt,offset=ofst): 
-            repairObj = {"uid":arepair.uid,"descr":arepair.descr,"assignedTo":arepair.assignedTo,"createdBy":arepair.createdBy}  
-            repairObj['comments'] = arepair.comments
-            repairObj['scheduleDate'] = arepair.scheduleDate
-            repairObj['scheduleTime'] = arepair.scheduleTime
-            repairObj['status'] = arepair.status
+            repairObj = self._tojson(arepair)
             repairs.append(repairObj)
 
         return repairs

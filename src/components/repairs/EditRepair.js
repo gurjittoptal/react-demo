@@ -3,27 +3,30 @@ import React from 'react';
 import agent from '../../agent';
 import { connect } from 'react-redux';
 import {
-  ADD_REPAIR,
-  ADD_REPAIR_PAGE_UNLOADED,
-  UPDATE_FIELD_ADDREPAIR
+  EDIT_REPAIR,
+  EDIT_REPAIR_PAGE_UNLOADED,
+  EDIT_REPAIR_PAGE_LOADED,
+  UPDATE_FIELD_EDITREPAIR
 } from '../../actionTypes';
 
-const mapStateToProps = state => ({ ...state.addrepair, currentUser: state.common.currentUser });
+const mapStateToProps = state => ({ ...state.editrepair, currentUser: state.common.currentUser });
 
 const mapDispatchToProps = dispatch => ({
   changeDescr: value =>
-    dispatch({ type: UPDATE_FIELD_ADDREPAIR, key: 'descr', value }),
-  changeScheduledDate: value =>
-    dispatch({ type: UPDATE_FIELD_ADDREPAIR, key: 'scheduledDate', value }),
-  changeScheduledTime: value =>
-    dispatch({ type: UPDATE_FIELD_ADDREPAIR, key: 'scheduledTime', value }),
+    dispatch({ type: UPDATE_FIELD_EDITREPAIR, key: 'descr', value }),
+  changeScheduleDate: value =>
+    dispatch({ type: UPDATE_FIELD_EDITREPAIR, key: 'scheduleDate', value }),
+  changeScheduleTime: value =>
+    dispatch({ type: UPDATE_FIELD_EDITREPAIR, key: 'scheduleTime', value }),
   changeAssignedTo: value =>
-    dispatch({ type: UPDATE_FIELD_ADDREPAIR, key: 'assignedTo', value }),
+    dispatch({ type: UPDATE_FIELD_EDITREPAIR, key: 'assignedTo', value }),
   onSubmit: (payload) => {
-    dispatch({ type: ADD_REPAIR, payload })
+    dispatch({ type: EDIT_REPAIR, payload })
   },
+  onLoad: (payload) =>
+    dispatch({ type: EDIT_REPAIR_PAGE_LOADED, payload }),
   onUnload: () =>
-    dispatch({ type: ADD_REPAIR_PAGE_UNLOADED })
+    dispatch({ type: EDIT_REPAIR_PAGE_UNLOADED })
 });
 
 
@@ -32,14 +35,14 @@ class AddRepair extends React.Component {
     super();
 
     this.changeDescr = ev => this.props.changeDescr(ev.target.value);
-    this.changeScheduledDate = ev => this.props.changeScheduledDate(ev.target.value);
-    this.changeScheduledTime = ev => this.props.changeScheduledTime(ev.target.value);
+    this.changeScheduleDate = ev => this.props.changeScheduleDate(ev.target.value);
+    this.changeScheduleTime = ev => this.props.changeScheduleTime(ev.target.value);
     this.changeAssignedTo = ev => this.props.changeAssignedTo(ev.target.value);  
 
-    this.editRepair = (descrval, scheduledDateval, scheduledTimeval, assignedToval) => ev => {
+    this.updateRepair = (descrval, scheduledDateval, scheduledTimeval, assignedToval) => ev => {
       ev.preventDefault();
-      const payload = agent.Repairs.create(
-        {  descr: descrval,
+      const payload = agent.Repairs.update(
+        this.props.repairid, {  descr: descrval,
            scheduledDate: scheduledDateval,
            scheduledTime:scheduledTimeval,
            assignedTo:assignedToval
@@ -49,14 +52,18 @@ class AddRepair extends React.Component {
     }
   }
 
+  componentWillMount() {
+    this.props.onLoad(Promise.all([agent.Repairs.get(this.props.params.id)]));
+  }
+
   componentWillUnmount() {
     this.props.onUnload();
   }
 
   render() {  
     const descr = this.props.descr;
-    const scheduledDate = this.props.scheduledDate;
-    const scheduledTime = this.props.scheduledTime;
+    const scheduleDate = this.props.scheduleDate;
+    const scheduleTime = this.props.scheduleTime;
     const assignedTo = this.props.assignedTo;
 
     if(!this.props.currentUser)
@@ -81,16 +88,27 @@ class AddRepair extends React.Component {
               <br/><br/>
               You need to have role <strong>Manager</strong> in order to add a new Repair.
               <br/>
+
             </div>
           </div>
         </div>
       );
 
+    if (!this.props.repairid) {
+    return (
+            <div className="container">
+              <div className="row center-align">
+                  <br/><br/>Loading...
+              </div>
+            </div>
+        );
+    }
+
     return (
       <div className="container">
           <div className="row">
             <div className="twelve columns login-form">
-              <h1>Add Repair</h1>
+              <h1>Edit Repair</h1>
               <p>
                 <Link to="repairs">
                   Show Repairs.
@@ -103,7 +121,7 @@ class AddRepair extends React.Component {
               &nbsp;
             </div>
             <div className="eight columns">
-                <form onSubmit={this.editRepair(descr, scheduledDate, scheduledTime, assignedTo)}>
+                <form onSubmit={this.updateRepair(descr, scheduleDate, scheduleTime, assignedTo)}>
                   <div className="row">
                     <div className="twelve columns">
                         <textarea className="text-medium"
@@ -123,16 +141,16 @@ class AddRepair extends React.Component {
                           <input className="inp-half"
                             type="text"
                             placeholder="e.g. 2017-12-11"
-                            value={this.props.scheduledDate}
-                            onChange={this.changeScheduledDate} />
+                            value={this.props.scheduleDate}
+                            onChange={this.changeScheduleDate} />
                         </span>
                         &nbsp;
                         <span>
                           <input className="inp-half"
                             type="text"
                             placeholder="e.g. 24:59"
-                            value={this.props.scheduledTime}
-                            onChange={this.changeScheduledTime} />
+                            value={this.props.scheduleTime}
+                            onChange={this.changeScheduleTime} />
                         </span>
                     </div>
                   </div>
@@ -155,7 +173,7 @@ class AddRepair extends React.Component {
                         className="button-primary"
                         type="submit"
                         disabled={this.props.inProgress}>
-                        Create Repair
+                        Update Repair
                       </button>
                       <br/>
                       <span className="error-message">{this.props.errors}</span>

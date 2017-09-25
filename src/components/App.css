@@ -1321,6 +1321,9 @@ ul.pagination li{
 
 li.page-item.active { background-color:#fbfbfb;}
 
+.purple {color:#9068be;} 
+.showcursor {cursor:pointer;}
+
 input.inp-small{width:90%;max-width:180px;font-size:65%;}
 input.inp-half{width:46%;max-width:150px;font-size:65%;}
 .label-small {font-size:70%;}

@@ -25,76 +25,29 @@ class repairsAPI(webapp2.RequestHandler):
     def post(self):
         apiInstance = api()
         if not apiInstance._isallowed(self): return
-
         payload = json.loads(self.request.body)
         
-        try:
-            RepairPayload = payload['repair']
-        except:
-            apiInstance.response(self,'{"errors":"No Arguments passed."}',401)
+        repairValidatorInstance = repairValidator()  
+        validatorReponse = repairValidatorInstance.validate(payload,apiInstance,self)
+        
+        if len(validatorReponse['errors'])!=0:
+            apiInstance.response(self,'{"errors":'+json.dumps(validatorReponse['errors'])+'}',401)
             return
 
         UtilitiesHelperInstance = UtilitiesHelper()
-        repairDescription = UtilitiesHelperInstance.getValueofKey(RepairPayload,'descr')
-        assignedTo = UtilitiesHelperInstance.getValueofKey(RepairPayload,'assignedTo')
-        scheduledDate = UtilitiesHelperInstance.getValueofKey(RepairPayload,'scheduledDate')
-        scheduledTime = UtilitiesHelperInstance.getValueofKey(RepairPayload,'scheduledTime')
-
+        repairDescription = UtilitiesHelperInstance.getValueofKey(payload['repair'],'descr')
+        assignedTo = UtilitiesHelperInstance.getValueofKey(payload['repair'],'assignedTo')
+        scheduledDate = UtilitiesHelperInstance.getValueofKey(payload['repair'],'scheduledDate')
+        scheduledTime = UtilitiesHelperInstance.getValueofKey(payload['repair'],'scheduledTime')
+        
         requestUser = apiInstance.getRequestUser(self)
 
-        if requestUser.role != 'manager':
-            apiInstance.response(self,'{"errors":{"message":"Unauthorized. Only users with role manager can create a Repair."}}',401)
-            return
-
         createdBy = requestUser.email
-        errors = ''
+        RepairHelperInstance = RepairModelHelper()
+        aRepair = RepairHelperInstance.create(str(uuid4()),assignedTo,scheduledDate,scheduledTime,createdBy,repairDescription,int(validatorReponse['proposedStartTS']))
 
-        if len(repairDescription)<5:
-            errors = "Enter a valid Description. "
-        
-        if scheduledDate != '' or scheduledTime != '':
-            isDateValid = UtilitiesHelperInstance._validatedate(scheduledDate)
-            if isDateValid!='':
-                errors += isDateValid
-                
-            isTimeValid = UtilitiesHelperInstance._validatetime(scheduledTime)
-            if isTimeValid!='':
-                errors += isTimeValid
-                
-        if assignedTo!='':
-            bbc = ''
-
-        if assignedTo!='':
-            UserModelHelperInstance = UserModelHelper()
-            assignedToUser = UserModelHelperInstance.get(assignedTo) 
-            if assignedToUser is None:
-                errors += 'No user with id '+assignedTo+' exists.'
-        
-        if len(errors)!=0:
-            apiInstance.response(self,'{"errors":'+json.dumps(errors)+'}',401)
-            return
-        
-        #try:
-        if 1==1:
-            RepairHelperInstance = RepairModelHelper()
-
-            proposedStartTS = UtilitiesHelperInstance.getScheduledTSfromDateTime(scheduledDate,scheduledTime)
-            logging.info(proposedStartTS)
-            # Check proposedStartTS validity
-            isProposedScheduleValid = 'OK'
-            if scheduledDate != '' and scheduledTime != '':
-                isProposedScheduleValid = RepairHelperInstance._checkProposedScheduleValidity(proposedStartTS)
-
-            if isProposedScheduleValid!='OK':
-                apiInstance.response(self,'{"errors":'+json.dumps(isProposedScheduleValid)+'}',401)
-                return
-
-            aRepair = RepairHelperInstance.create(str(uuid4()),assignedTo,scheduledDate,scheduledTime,createdBy,repairDescription,int(proposedStartTS))
-
-            repairObj = {"key":aRepair.uid}
-            apiInstance.response(self,'{"message":"Repair Successfully added","repair":'+json.dumps(repairObj)+'}')
-        #except:
-        #    apiInstance.response(self,'{"errors":"Error while writing to DB."}',401)
+        repairObj = {"key":aRepair.uid}
+        apiInstance.response(self,'{"message":"Repair Successfully added","repair":'+json.dumps(repairObj)+'}')
         
 
     def get(self):
@@ -184,13 +137,14 @@ class repairAPI(webapp2.RequestHandler):
         #logging.info(payload['method'])
         if payload['method']=='changestate':
             if arepair.assignedTo==reqUser.email:
-                if arepair.state !='INCOMPLETE' and payload['state']!='COMPLETED':
-                    apiInstance.response(self,'{"errors":"Invalid State change requested for user.('+arepair.state+'->'+payload['state']+')"}',401)
+                if arepair.status !='INCOMPLETE' and payload['state']!='COMPLETED':
+                    apiInstance.response(self,'{"errors":"Invalid State change requested for user.('+arepair.status+'->'+payload['state']+')"}',401)
                     return
                 else:
-                    arepair.state = payload['state']
+                    arepair.status = payload['state']
                     arepair.put()
-                    apiInstance.response(self,'{"message":"State changed."}',401)
+                    repairObject = RepairModelInstance._tojson(arepair)
+                    apiInstance.response(self,'{"message":"State changedi.","repair":'+json.dumps(repairObject)+'}',200)
                     return
 
             if payload['state']=='COMPLETED' or payload['state']=='INCOMPLETE' or payload['state']=='APPROVED':
@@ -202,21 +156,95 @@ class repairAPI(webapp2.RequestHandler):
 
             apiInstance.response(self,'{"errors":"Allowed States are APPROVED, COMPLETED and INCOMPLETE"}',401)
             return
+        elif payload['method']=='update': 
+            repairValidatorInstance = repairValidator()
+            validatorReponse = repairValidatorInstance.validate(payload,apiInstance,self)
+            if len(validatorReponse['errors'])!=0:
+                apiInstance.response(self,'{"errors":'+json.dumps(validatorReponse['errors'])+'}',401)
+                return
+            
+            UtilitiesHelperInstance = UtilitiesHelper()
+            repairDescription = UtilitiesHelperInstance.getValueofKey(payload['repair'],'descr')
+            assignedTo = UtilitiesHelperInstance.getValueofKey(payload['repair'],'assignedTo')
+            scheduledDate = UtilitiesHelperInstance.getValueofKey(payload['repair'],'scheduledDate')
+            scheduledTime = UtilitiesHelperInstance.getValueofKey(payload['repair'],'scheduledTime')
+        
+            RepairHelperInstance = RepairModelHelper()
+            arepair.assignedTo = assignedTo
+            arepair.descr = repairDescription
+            arepair.scheduledDate = scheduledDate
+            arepair.scheduledTime = scheduledTime
+            arepair.put()
+
+            repairObject = RepairModelInstance._tojson(arepair)
+            apiInstance.response(self,'{"message":"Updated.","repair":'+json.dumps(repairObject)+'}',200)
+            return
+        
+        apiInstance.response(self,'{"errors":"Invalid Put method"}',401)
+                    
+  
+class repairValidator():
+    def validate(self,payload,apiInstance,requestObj):
+        ret = {'errors':'','proposedStartTS':'1'}
 
         try:
-            if payload['method']=='changestate':
-                self._changestate(arepair,reqUser,payload,RepairModelInstance)
-                return
+            RepairPayload = payload['repair']
         except:
-            msg = 'Continue with Edit'
-        ## Req : Comment on any Repairs at any time. 
-        #if not isAllowed and arepair.assignedTo != reqUser.email:
-        #    apiInstance.response(self,'{"errors":"You do not have access to view this repair."}',403)
-        #    return
+            ret['errors'] = 'No Arguments passed'
+            return ret
 
-        repairObject = RepairModelInstance._tojson(arepair)
-        apiInstance.response(self,'{"repair":'+json.dumps(repairObject)+'}')
-  
+        UtilitiesHelperInstance = UtilitiesHelper()
+        repairDescription = UtilitiesHelperInstance.getValueofKey(RepairPayload,'descr')
+        assignedTo = UtilitiesHelperInstance.getValueofKey(RepairPayload,'assignedTo')
+        scheduledDate = UtilitiesHelperInstance.getValueofKey(RepairPayload,'scheduledDate')
+        scheduledTime = UtilitiesHelperInstance.getValueofKey(RepairPayload,'scheduledTime')
+
+        requestUser = apiInstance.getRequestUser(requestObj)
+
+        if requestUser.role != 'manager':
+            ret['errors'] = "Unauthorized. Only users with role manager can create a Repair."
+            return ret
+
+        createdBy = requestUser.email
+        errors = ''
+
+        if len(repairDescription)<5:
+            ret['errors'] += "Enter a valid Description. "
+        
+        if scheduledDate != '' or scheduledTime != '':
+            isDateValid = UtilitiesHelperInstance._validatedate(scheduledDate)
+            if isDateValid!='':
+                ret['errors'] += isDateValid
+                
+            isTimeValid = UtilitiesHelperInstance._validatetime(scheduledTime)
+            if isTimeValid!='':
+                ret['errors'] += isTimeValid
+                
+        if assignedTo!='':
+            bbc = ''
+
+        if assignedTo!='':
+            UserModelHelperInstance = UserModelHelper()
+            assignedToUser = UserModelHelperInstance.get(assignedTo) 
+            if assignedToUser is None:
+                ret['errors'] += 'No user with id '+assignedTo+' exists.'
+
+        if scheduledDate != '' and scheduledTime != '':
+            RepairHelperInstance = RepairModelHelper()
+
+            proposedStartTS = UtilitiesHelperInstance.getScheduledTSfromDateTime(scheduledDate,scheduledTime)
+            logging.info(proposedStartTS)
+            # Check proposedStartTS validity
+            isProposedScheduleValid = 'OK'
+            if scheduledDate != '' and scheduledTime != '':
+                isProposedScheduleValid = RepairHelperInstance._checkProposedScheduleValidity(proposedStartTS)
+
+            ret['proposedStartTS'] = proposedStartTS 
+            if isProposedScheduleValid!='OK':
+                ret['errors'] += isProposedScheduleValid+' '
+
+        return ret
+   
 
 
     

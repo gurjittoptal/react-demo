@@ -18,6 +18,7 @@ import User from './components/users/User';
 import AddUser from './components/users/AddUser';
 import Repairs from './components/repairs/Repairs';
 import AddRepair from './components/repairs/AddRepair';
+import EditRepair from './components/repairs/EditRepair';
 import Repair from './components/repairs/Repair';
 
 ReactDOM.render((
@@ -34,6 +35,7 @@ ReactDOM.render((
         <Route path="repairs" component={Repairs} />
         <Route path="repairs/add" component={AddRepair} />
         <Route path="repairs/:id" component={Repair} />
+        <Route path="repairs/edit/:id" component={EditRepair} />
       </Route>
     </Router>
   </Provider>

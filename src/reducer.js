@@ -1,6 +1,7 @@
 import auth from './reducers/auth';
 import adduser from './reducers/adduser';
 import addrepair from './reducers/addrepair';
+import editrepair from './reducers/editrepair';
 import { combineReducers } from 'redux';
 import home from './reducers/home';
 import common from './reducers/common';
@@ -14,6 +15,7 @@ export default combineReducers({
   auth,
   adduser,
   addrepair,
+  editrepair,
   common,
   home,
   repair,

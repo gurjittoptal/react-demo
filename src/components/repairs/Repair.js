@@ -23,6 +23,22 @@ const mapDispatchToProps = dispatch => ({
     dispatch({ type: REPAIR_PAGE_UNLOADED })
 });
 
+const RepairsEditLink = props => {
+  if (props.currentUser.role=='manager') {
+    return (
+    <div className="six columns left-align">
+      <br/>
+      <span>
+        <Link className="text-medium" to={`repairs/edit/${props.repair.uid}`}>
+            EDIT REPAIR
+        </Link>
+      </span>
+    </div>
+     );
+  }
+  return null;
+}
+
 const RepairDetails = props => {
   
   if (props.isdeleted) {
@@ -58,13 +74,16 @@ const RepairDetails = props => {
       <div className="row">
         <div className="six columns left-align">
           <br/>
-          <div className="text-small bold">REPAIR DETAILS</div>
-          <div className="text-medium">{props.repair.descr}</div>
-        </div>
-        <div className="six columns left-align">
-          <br/>
           <div className="text-small bold">STATUS</div>
           <div className="text-medium">{props.repair.status}</div>
+        </div>
+        <RepairsEditLink currentUser={props.user} repair={props.repair} />
+      </div>
+      <div className="row">
+        <div className="six columns left-align">
+          <br/>
+          <div className="text-small bold">REPAIR DETAILS</div>
+          <div className="text-medium">{props.repair.descr}</div>
         </div>
       </div>
       <br/> 
