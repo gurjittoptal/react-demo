@@ -4,6 +4,7 @@ import React from 'react';
 import agent from '../../agent';
 import { connect } from 'react-redux';
 import DeleteUserButton from './DeleteUserButton';
+import ChangeUserRole from './ChangeUserRole';
 
 import {
   USER_PAGE_LOADED,
@@ -22,7 +23,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const UsersDetails = props => {
-  
+  console.log(props);
   if (props.isdeleted) {
     return (
       <div>User does not exist!</div>
@@ -40,9 +41,15 @@ const UsersDetails = props => {
        <h4>{props.user.email}</h4>
        <div>
           Role - <strong>{props.user.role}</strong>
+          <br/>
        </div>
-
+       
+       <br/>
+       <ChangeUserRole user={props.user} />
        <DeleteUserButton user={props.user} />
+
+       <span className="error-message">{props.errors}</span>
+       <span className="success-message">{props.message}</span>
     </div>
   );
 };
@@ -71,6 +78,8 @@ class User extends React.Component {
           <div className="eight columns anonymous-message">
               <UsersDetails
                 user={this.props.user} 
+                errors={this.props.errors} 
+                message={this.props.message} 
                 isdeleted={this.props.isdeleted} />
           </div>   
         </div>

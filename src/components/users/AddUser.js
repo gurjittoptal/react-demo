@@ -65,7 +65,7 @@ class AddUser extends React.Component {
         </div>
       );
 
-    if(!this.props.currentUser.role!='manager')
+    if(this.props.currentUser.role!='manager')
       return (
         <div className="container">
           <div className="row">

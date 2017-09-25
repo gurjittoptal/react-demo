@@ -49,7 +49,9 @@ const Users = {
   del: uid =>
     requests.del(`/user/${uid}`),
   save: user =>
-    requests.put('/user', { user })
+    requests.put('/user', { user }),
+  changerole: (uid, arole) =>
+    requests.put(`/user/${uid}`, { role: arole, method: 'changerole' }),
 };
 
 const Repairs = {

@@ -121,41 +121,37 @@ class userAPI(webapp2.RequestHandler):
             apiInstance.response(self,'{"status":"error","message":"Resource does not exist"}',404)
             return
 
-        uid = self.request.get('uid')
-        password = self.request.get('password')
-        email = self.request.get('email') 
-        role = self.request.get('role') 
+        payload = json.loads(self.request.body)
 
-        if role=='user' or role=='admin' or role=='manager':
-            aUser.role = role
+        if payload['method']=='changerole':
+            newrole = payload['role']
+            if newrole=='manager' or newrole=='user':
+                aUser.role = newrole
+                aUser.put()
+                jsonUser = {"key":str(aUser.key().name()),"uid":aUser.uid,"email":aUser.email,"role":aUser.role}
+                apiInstance.response(self,'{"status":"ok","message":"User role has been updated","user":'+json.dumps(jsonUser)+'}')
+            else:
+                apiInstance.response(self,'{"errors":"role can be either or user or manager."}',401)
         
-        if len(uid)>2:
-            anExistingUserwithId = UserHelperInstance.get(uid)
-            if anExistingUserwithId is not None and id!=anExistingUserwithId.key().name():
-                apiInstance.response(self,'{"status":"error","message":"Id('+uid+') is already taken."}')
-                return
-            aUser.uid = uid
-
-        if email!='': aUser.email = email
-        if password!='': 
-            if len(password)<3:
-                apiInstance.response(self,'{"status":"error","message":"Password length should be >2."}')
-                return
-            aUser.password = UserHelperInstance.getonewayhash(password)
-
-        aUser.put()
-
-        apiInstance.response(self,'{"status":"ok","message":"User has been updated"}')
-
+        else:
+            apiInstance.response(self,'{"errors":"Invalid Resource."}',404)
+            return
+        
     def delete(self,id):
         apiInstance = api()
         if not apiInstance._isallowed(self): return
 
         UserHelperInstance = UserModelHelper()
+        reqUser = apiInstance.getRequestUser(self)
+
         aUser = UserHelperInstance.get('',id)
         if aUser is None:
             apiInstance.response(self,'{"status":"ok","message":"Resource does not exist"}',404)
             return
+        if reqUser.email == aUser.email:
+            apiInstance.response(self,'{"errors":"You cannot delete yourself."}',401)
+            return
+
         aUser.delete()
         apiInstance.response(self,'{"status":"ok","message":"Resource deleted."}',200)
 
