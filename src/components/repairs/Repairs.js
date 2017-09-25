@@ -26,7 +26,7 @@ const RepairPreview = props => {
     <tr className="repair-preview">
        <td className="text-small">{props.repair.descr}</td>
        <td className="text-small">
-            Scheduled For : {props.repair.scheduleDate}
+            Scheduled For : {props.repair.scheduleDate}&nbsp;
             {props.repair.scheduleTime}<br/>
             Assigned To: {props.repair.assignedTo}<br/>
             <strong>{props.repair.status}</strong>
@@ -51,7 +51,7 @@ const RepairsList = props => {
   return (
     <div>
       <RepairsFilter
-          user={props.currentUser} />
+          user={props.currentUser} filterwarnings={props.filterwarnings} />
 
       <table className="u-full-width">
         <thead>
@@ -142,6 +142,7 @@ class Repairs extends React.Component {
                   FfrTm = {this.props.FfrTm} 
                   FtoDt = {this.props.FtoDt} 
                   FtoTm = {this.props.FtoTm} 
+                  filterwarnings = {this.props.filterwarnings} 
 
                   />
           </div>   

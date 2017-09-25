@@ -54,7 +54,7 @@ class Repair(db.Model):
     scheduleTimeINT =  db.IntegerProperty(required=False,indexed=True)
     scheduleStart =  db.IntegerProperty(required=False,indexed=True)
     createdBy =  db.StringProperty(required=True,indexed=True)
-    descr =  db.StringProperty(required=True,indexed=False)
+    descr =  db.TextProperty(required=True,indexed=False)
     comments = db.TextProperty(required=False,indexed=False)
 
 class RepairModelHelper():

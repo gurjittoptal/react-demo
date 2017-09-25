@@ -18,6 +18,7 @@ export default (state = {}, action) => {
         FtoDt:action.payload.FtoDt,
         FtoTm:action.payload.FtoTm,
         FassignedTo:action.payload.FassignedTo,
+        filterwarnings: action.payload.warnings ? action.payload.warnings : null
       };
     case REPAIRS_PAGE_LOADED:
       if(action.error)

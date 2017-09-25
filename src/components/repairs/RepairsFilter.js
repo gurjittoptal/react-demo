@@ -75,10 +75,9 @@ class RepairsFilter extends React.Component {
   }
 
   componentWillUnmount() {
-    this.props.onUnload();
+    
   }
   
-
   render() {
 
     return (
@@ -158,7 +157,7 @@ class RepairsFilter extends React.Component {
                       </div>
                     
                   </div>
-
+                  <span className="error-message">{this.props.filterwarnings}</span>
 
               </form>
           </div>

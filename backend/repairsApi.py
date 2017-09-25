@@ -89,6 +89,31 @@ class repairsAPI(webapp2.RequestHandler):
 
         if uemail=='':
             uemail=assignedTo
+
+        UtilitiesHelperInstance = UtilitiesHelper()
+        warnings = ''
+
+        if frDt!='':
+            anerror = UtilitiesHelperInstance._validatedate(frDt)
+            if anerror!='':
+                warnings += anerror
+                frDt = ''
+        if toDt!='':
+            anerror = UtilitiesHelperInstance._validatedate(toDt)
+            if anerror!='':
+                warnings += anerror
+                toDt=''
+        if frTm!='':
+            anerror = UtilitiesHelperInstance._validatetime(frTm)
+            if anerror!='':
+                warnings += anerror
+                frTm=''
+        if toTm!='':
+            anerror = UtilitiesHelperInstance._validatetime(toTm)
+            if anerror!='':
+                warnings += anerror
+                toTm=''
+
     
         ret  = RepairModelInstance.list(limit,offset,uemail,status,frDt,frTm,toDt,toTm)
         filtesString = '"Fstatus":'+json.dumps(status)
@@ -97,6 +122,8 @@ class repairsAPI(webapp2.RequestHandler):
         filtesString += ',"FfrTm":'+json.dumps(frTm)
         filtesString += ',"FtoDt":'+json.dumps(toDt)
         filtesString += ',"FtoTm":'+json.dumps(toTm)
+        if warnings!='':
+            filtesString += ',"warnings":'+json.dumps(warnings)
 
         apiInstance.response(self,'{'+filtesString+',"repairs":'+json.dumps(ret['repairs'])+',"currentPage":'+json.dumps(currentPage)+',"hasMore":'+json.dumps(ret['hasMore'])+'}')
 
@@ -253,14 +280,18 @@ class repairValidator():
         if len(repairDescription)<5:
             ret['errors'] += "Enter a valid Description. "
         
+        isScheduleValid = False
         if scheduledDate != '' or scheduledTime != '':
+            isScheduleValid = True
             isDateValid = UtilitiesHelperInstance._validatedate(scheduledDate)
             if isDateValid!='':
                 ret['errors'] += isDateValid
+                isScheduleValid = False
                 
             isTimeValid = UtilitiesHelperInstance._validatetime(scheduledTime)
             if isTimeValid!='':
                 ret['errors'] += isTimeValid
+                isScheduleValid = False
                 
         if assignedTo!='':
             bbc = ''
@@ -271,7 +302,7 @@ class repairValidator():
             if assignedToUser is None:
                 ret['errors'] += 'No user with id '+assignedTo+' exists.'
 
-        if scheduledDate != '' and scheduledTime != '':
+        if isScheduleValid:
             RepairHelperInstance = RepairModelHelper()
 
             proposedStartTS = UtilitiesHelperInstance.getScheduledTSfromDateTime(scheduledDate,scheduledTime)

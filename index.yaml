@@ -12,6 +12,11 @@ indexes:
 
 - kind: Repair
   properties:
+  - name: assignedTo
+  - name: scheduleDateINT
+
+- kind: Repair
+  properties:
   - name: status
   - name: scheduleDateINT
 
