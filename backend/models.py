@@ -49,7 +49,9 @@ class Repair(db.Model):
     assignedTo = db.StringProperty(required=False,indexed=True)
     status = db.StringProperty(required=True,indexed=True)
     scheduleDate =  db.StringProperty(required=False,indexed=False)
+    scheduleDateINT =  db.IntegerProperty(required=False,indexed=True)
     scheduleTime =  db.StringProperty(required=False,indexed=False)
+    scheduleTimeINT =  db.IntegerProperty(required=False,indexed=True)
     scheduleStart =  db.IntegerProperty(required=False,indexed=True)
     createdBy =  db.StringProperty(required=True,indexed=True)
     descr =  db.StringProperty(required=True,indexed=False)
@@ -58,9 +60,16 @@ class Repair(db.Model):
 class RepairModelHelper():
     def create(self,id,assignedToval,scheduleDateval,scheduleTimeval,createdByval,descrval,scheduleStart):
         aRepair = Repair(parent=None,key_name=id,uid=id,assignedTo=assignedToval,
-            scheduleDate=scheduleDateval,status='open',scheduleTime=scheduleTimeval,createdBy=createdByval,descr=descrval)
+            scheduleDate=scheduleDateval,status='INCOMPLETE',scheduleTime=scheduleTimeval,createdBy=createdByval,descr=descrval,scheduleTimeINT=0,scheduleDateINT=0)
         aRepair.scheduleStart = scheduleStart
         aRepair.comments = '[]'
+        if scheduleDateval!='':
+            tempval = int(scheduleDateval.replace('-',''))
+            aRepair.scheduleDateINT = tempval
+        if scheduleTimeval!='':
+            tempval = int(scheduleTimeval.replace(':',''))
+            aRepair.scheduleTimeINT= tempval
+            
         aRepair.put()
         return aRepair
 
@@ -85,39 +94,76 @@ class RepairModelHelper():
 
         return repairObj
        
+    def count(self):
+        count = Repair.all(keys_only=True).count(500)
+        return count
 
-    def list(self,lmt=5,ofst=0,assignedTo=''):
+    def list(self,lmt=5,ofst=0,assignedTo='',status='',frDt='',frTm='',toDt='',toTm=''):
+        ret = {'hasMore':0}
         repairs = []
+        conditions = ''
+        qry = "SELECT * FROM Repair"
 
-        if assignedTo=='':
-            q = GqlQuery("SELECT * FROM Repair")
-        else:
-            q = GqlQuery("SELECT * FROM Repair where assignedTo=:assgnto",assgnto=assignedTo)
-            logging.info(assignedTo)
+        toTm = toTm.replace(':','')
+        if assignedTo!='':
+            conditions =self._addcondition(' assignedTo=:assgnto ',conditions)
 
-        for arepair in q.run(limit=lmt,offset=ofst): 
+        datedfilterson = False
+        if frDt!='':
+            datedfilterson = True
+            frDt = int(frDt.replace('-',''))
+            conditions = self._addcondition(' scheduleDateINT>=:fD and scheduleDateINT!=1',conditions)
+        if toDt!='':
+            datedfilterson = True
+            toDt = int(toDt.replace('-',''))
+            conditions = self._addcondition(' scheduleDateINT<=:tD and scheduleDateINT!=1 ',conditions)
+        if frTm!='' and not datedfilterson:
+            frTm = int(frTm.replace(':',''))
+            conditions = self._addcondition(' scheduleTimeINT>=:fT and scheduleTimeINT!=0 ',conditions)
+        if toTm!='' and not datedfilterson:
+            toTm = int(toTm.replace(':',''))
+            conditions = self._addcondition(' scheduleTimeINT<=:tT and scheduleTimeINT!=0 ',conditions)
+        if status!='' and status!='ALL':
+            conditions = self._addcondition(' status=:sT',conditions)
+
+        if conditions!='':
+            qry = qry + ' where ' + conditions
+
+        logging.info(qry)
+        q = GqlQuery(qry,assgnto=assignedTo,sT=status,fD=frDt,fT=frTm,tD=toDt,tT=toTm)
+        
+        index = 0
+        for arepair in q.run(limit=lmt+1,offset=ofst): 
             repairObj = self._tojson(arepair)
-            repairs.append(repairObj)
+            index +=1
+            if index<6:
+                repairs.append(repairObj)
 
-        return repairs
+        ret['repairs'] = repairs
+        if index==6:
+            ret['hasMore'] = 1
+        return ret
+
+    def _addcondition(self,condition,existing):
+        if existing!='':
+            existing += ' and '
+        return (existing + condition)
 
     # Checks if proposed schedule is valid for a given Repair
     def _checkProposedScheduleValidity(self,proposedStartTS,req=''):
         
         proposedStartTS = int(proposedStartTS)
         logging.info(proposedStartTS)
-        q = GqlQuery("SELECT * FROM Repair where status=:astatus and scheduleStart<:psTS order by scheduleStart desc",psTS=proposedStartTS,astatus='open')
+        q = GqlQuery("SELECT * FROM Repair where status=:astatus and scheduleStart<:psTS order by scheduleStart desc",psTS=proposedStartTS,astatus='INCOMPLETE')
 
         isOk = True
         prevRepair = None
         for arepair in q.run(limit=1):
-            logging.info('PP')
-            logging.info(arepair.scheduleStart)
             prevRepair = arepair
             if proposedStartTS- arepair.scheduleStart<REPAIRSLOTTIME:
                 isOk = False
 
-        q = GqlQuery("SELECT * FROM Repair where status=:astatus and scheduleStart>=:psTS order by scheduleStart asc",psTS=proposedStartTS,astatus='open')
+        q = GqlQuery("SELECT * FROM Repair where status=:astatus and scheduleStart>=:psTS order by scheduleStart asc",psTS=proposedStartTS,astatus='INCOMPLETE')
 
         tuples = []
 

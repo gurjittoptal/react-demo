@@ -40,6 +40,8 @@ class repairsAPI(webapp2.RequestHandler):
         scheduledDate = UtilitiesHelperInstance.getValueofKey(payload['repair'],'scheduledDate')
         scheduledTime = UtilitiesHelperInstance.getValueofKey(payload['repair'],'scheduledTime')
         
+        logging.info(scheduledDate)
+        logging.info("::")
         requestUser = apiInstance.getRequestUser(self)
 
         createdBy = requestUser.email
@@ -72,9 +74,31 @@ class repairsAPI(webapp2.RequestHandler):
             offset = int(self.request.get('offset'))
         except:
             offset = 0
-        
-        repairs  = RepairModelInstance.list(limit,offset,uemail)
-        apiInstance.response(self,'{"repairs":'+json.dumps(repairs)+',"repairscount":50}')
+
+        if offset==0:
+            currentPage = 0
+        else: 
+            currentPage = int(offset/limit)
+
+        assignedTo = self.request.get('assignedTo')
+        status = self.request.get('status')
+        frDt = self.request.get('frDt')
+        frTm = self.request.get('frTm')
+        toDt = self.request.get('toDt')
+        toTm = self.request.get('toTm')
+
+        if uemail=='':
+            uemail=assignedTo
+    
+        ret  = RepairModelInstance.list(limit,offset,uemail,status,frDt,frTm,toDt,toTm)
+        filtesString = '"Fstatus":'+json.dumps(status)
+        filtesString += ',"FassignedTo":'+json.dumps(assignedTo)
+        filtesString += ',"FfrDt":'+json.dumps(frDt)
+        filtesString += ',"FfrTm":'+json.dumps(frTm)
+        filtesString += ',"FtoDt":'+json.dumps(toDt)
+        filtesString += ',"FtoTm":'+json.dumps(toTm)
+
+        apiInstance.response(self,'{'+filtesString+',"repairs":'+json.dumps(ret['repairs'])+',"currentPage":'+json.dumps(currentPage)+',"hasMore":'+json.dumps(ret['hasMore'])+'}')
 
 
 class repairAPI(webapp2.RequestHandler):
@@ -132,8 +156,7 @@ class repairAPI(webapp2.RequestHandler):
                     if payload['state'] == 'INCOMPLETE': #Set assigned to none to avoid conflicts
                         arepair.scheduleDate = ''
                         arepair.scheduleTime = ''
-                        logging.info('inddd')
-            
+                        
                     arepair.put()
                     repairObject = RepairModelInstance._tojson(arepair)
                     apiInstance.response(self,'{"message":"State changed.","repair":'+json.dumps(repairObject)+'}',200)
@@ -172,6 +195,12 @@ class repairAPI(webapp2.RequestHandler):
             arepair.assignedTo = assignedTo
             arepair.descr = repairDescription
             arepair.scheduleDate = scheduledDate
+            if scheduledDate!='':
+                tempval = int(scheduledDate.replace('-',''))
+                arepair.scheduleDateINT = tempval
+            if scheduledTime!='':
+                tempval = int(scheduledTime.replace(':',''))
+                arepair.scheduleTimeINT= tempval
             arepair.scheduleTime = scheduledTime
             arepair.put()
 

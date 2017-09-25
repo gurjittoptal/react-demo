@@ -3,8 +3,8 @@ import _superagent from 'superagent';
 
 const superagent = superagentPromise(_superagent, global.Promise);
 
-//const API_ROOT = '/api';
-const API_ROOT = 'http://localhost:64080/api';
+const API_ROOT = '/api';
+//const API_ROOT = 'http://localhost:64080/api';
 
 const encode = encodeURIComponent;
 const responseBody = res => res.body;
@@ -57,8 +57,8 @@ const Users = {
 const Repairs = {
   create: (payload) =>
     requests.post('/repairs', { repair: payload }),
-  all: page =>
-    requests.get(`/repairs?${limit(5, page)}`),
+  all: (page,status,assignedTo,frDt,frTm,toDt,toTm) =>
+    requests.get(`/repairs?${limit(5, page)}&status=${status}&assignedTo=${assignedTo}&frDt=${frDt}&frTm=${frTm}&toDt=${toDt}&toTm=${toTm}`),
   get: uid =>
     requests.get(`/repair/${uid}`),
   del: uid =>

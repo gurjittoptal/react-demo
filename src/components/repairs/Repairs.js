@@ -24,8 +24,13 @@ const mapDispatchToProps = dispatch => ({
 const RepairPreview = props => {
   return (
     <tr className="repair-preview">
-       <td>{props.repair.descr}</td>
-       <td>{props.repair.scheduleDate}<br/>{props.repair.scheduleTime}</td>
+       <td className="text-small">{props.repair.descr}</td>
+       <td className="text-small">
+            Scheduled For : {props.repair.scheduleDate}
+            {props.repair.scheduleTime}<br/>
+            Assigned To: {props.repair.assignedTo}<br/>
+            <strong>{props.repair.status}</strong>
+       </td>
        <td>
           <Link to={`repairs/${props.repair.uid}`}>
             Details
@@ -37,7 +42,7 @@ const RepairPreview = props => {
 
 
 const RepairsList = props => {
-
+  console.log(props)
   if (!props.repairs) {
     return (
       <div>Loading...</div>
@@ -68,8 +73,14 @@ const RepairsList = props => {
       </table>
 
       <RepairsPagination
-          repairscount={props.repairscount}
-          currentPage={props.currentPage} />
+          hasMore={props.hasMore}
+          currentPage={props.currentPage} 
+          Fstatus = {props.Fstatus} 
+          FassignedTo = {props.FassignedTo} 
+          FfrDt = {props.FfrDt} 
+          FfrTm = {props.FfrTm} 
+          FtoDt = {props.FtoDt} 
+          FtoTm = {props.FtoTm} />
     </div>
   );
 };
@@ -80,7 +91,7 @@ class Repairs extends React.Component {
   }
 
   componentWillMount() {
-    this.props.onLoad(Promise.all([agent.Repairs.all()]));
+    this.props.onLoad(Promise.all([agent.Repairs.all(0,'ALL','','','','','','')]));
   }
 
   componentWillUnmount() {
@@ -112,17 +123,27 @@ class Repairs extends React.Component {
           </div>
           <div className="ten columns">
               <h1>Repairs Listing</h1>
-              <p>
-                <Link to="/repairs/add">
-                  Add new Repair
-                </Link>
-              </p>
+              {this.props.currentUser.role=='manager' &&
+                <p>
+                  <Link to="/repairs/add">
+                    Add new Repair
+                  </Link>
+                </p>
+              }
 
               <RepairsList
                   repairs={this.props.repairs}
-                  repairscount={this.props.repairscount} 
+                  hasMore={this.props.hasMore} 
                   currentPage={this.props.currentPage} 
-                  loading={this.props.loading} />
+                  loading={this.props.loading} 
+                  Fstatus = {this.props.Fstatus} 
+                  FassignedTo = {this.props.FassignedTo} 
+                  FfrDt = {this.props.FfrDt} 
+                  FfrTm = {this.props.FfrTm} 
+                  FtoDt = {this.props.FtoDt} 
+                  FtoTm = {this.props.FtoTm} 
+
+                  />
           </div>   
         </div>
 

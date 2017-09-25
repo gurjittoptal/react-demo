@@ -1,3 +1,13 @@
+
+<a href="https://react-demp.appspot.com/#/">https://react-demp.appspot.com/#/</a>
+
+Credentials for admin
+admin@admin
+admin
+
+-------
+
+
 # react-example
 
 Simple starter kit to get started with [React]. [Webpack], [Babel] and [Jest] are preconfigured so you can focus on writing code.
