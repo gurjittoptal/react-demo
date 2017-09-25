@@ -1,5 +1,5 @@
 
-<a href="https://react-demp.appspot.com/#/">https://react-demp.appspot.com/#/</a>
+<a href="https://11-dot-react-demp.appspot.com/#/">https://11-dot-react-demp.appspot.com/#/</a>
 
 Credentials for admin
 admin@admin
