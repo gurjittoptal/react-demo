@@ -1,5 +1,6 @@
 import {
   EDIT_REPAIR,
+  DELETE_REPAIR,
   UPDATE_FIELD_EDITREPAIR,
   EDIT_REPAIR_PAGE_LOADED, 
   EDIT_REPAIR_PAGE_UNLOADED
@@ -7,6 +8,8 @@ import {
 
 export default (state = {}, action) => {
   switch (action.type) {
+    case DELETE_REPAIR:
+      return {errors:"Resource is deleted."};
     case EDIT_REPAIR:
       return {
         ...state,

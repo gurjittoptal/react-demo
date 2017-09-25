@@ -2,6 +2,8 @@ import { Link } from 'react-router';
 import React from 'react';
 import agent from '../../agent';
 import { connect } from 'react-redux';
+import DeleteRepairButton from './DeleteRepairButton'
+
 import {
   EDIT_REPAIR,
   EDIT_REPAIR_PAGE_UNLOADED,
@@ -94,11 +96,12 @@ class AddRepair extends React.Component {
         </div>
       );
 
+
     if (!this.props.repairid) {
     return (
             <div className="container">
               <div className="row center-align">
-                  <br/><br/>Loading...
+                  <br/><br/>{this.props.errors}
               </div>
             </div>
         );
@@ -181,6 +184,7 @@ class AddRepair extends React.Component {
                     </div>
                   </div>     
                 </form>
+                <DeleteRepairButton repairid={this.props.repairid}/>
             </div>
           </div>
       </div>

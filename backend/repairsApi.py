@@ -90,22 +90,14 @@ class repairAPI(webapp2.RequestHandler):
 
         reqUser = apiInstance.getRequestUser(self)
 
-        isAllowed = False
         if reqUser is None:
             apiInstance.response(self,'{"errors":"Unauthorized"}',401)
             return
-        elif reqUser.role=='manager':
-            isAllowed = True 
-
+        
         arepair = RepairModelInstance.get(id)
         if arepair is None:
             apiInstance.response(self,'{"errors":"Repair does not exist."}',404)
             return
-
-        ## Req : Comment on any Repairs at any time. 
-        #if not isAllowed and arepair.assignedTo != reqUser.email:
-        #    apiInstance.response(self,'{"errors":"You do not have access to view this repair."}',403)
-        #    return
 
         repairObject = RepairModelInstance._tojson(arepair)
         apiInstance.response(self,'{"repair":'+json.dumps(repairObject)+'}')
@@ -116,13 +108,10 @@ class repairAPI(webapp2.RequestHandler):
 
         reqUser = apiInstance.getRequestUser(self)
 
-        isAllowed = False
         if reqUser is None:
             apiInstance.response(self,'{"errors":"Unauthorized"}',401)
             return
-        elif reqUser.role=='manager':
-            isAllowed = True 
-
+        
         arepair = RepairModelInstance.get(id)
         if arepair is None:
             apiInstance.response(self,'{"errors":"Repair does not exist."}',404)
@@ -136,7 +125,23 @@ class repairAPI(webapp2.RequestHandler):
 
         #logging.info(payload['method'])
         if payload['method']=='changestate':
-            if arepair.assignedTo==reqUser.email:
+            if reqUser.role=='manager':
+                if (payload['state']=='COMPLETED' or payload['state']=='INCOMPLETE' or payload['state']=='APPROVED'):
+                    arepair.status = payload['state']
+                    logging.info(arepair.status)
+                    if payload['state'] == 'INCOMPLETE': #Set assigned to none to avoid conflicts
+                        arepair.scheduleDate = ''
+                        arepair.scheduleTime = ''
+                        logging.info('inddd')
+            
+                    arepair.put()
+                    repairObject = RepairModelInstance._tojson(arepair)
+                    apiInstance.response(self,'{"message":"State changed.","repair":'+json.dumps(repairObject)+'}',200)
+                    return
+                else:
+                    apiInstance.response(self,'{"errors":"Allowed States are APPROVED, COMPLETED and INCOMPLETE"}',401)
+                    return
+            elif arepair.assignedTo==reqUser.email:
                 if arepair.status !='INCOMPLETE' and payload['state']!='COMPLETED':
                     apiInstance.response(self,'{"errors":"Invalid State change requested for user.('+arepair.status+'->'+payload['state']+')"}',401)
                     return
@@ -144,18 +149,12 @@ class repairAPI(webapp2.RequestHandler):
                     arepair.status = payload['state']
                     arepair.put()
                     repairObject = RepairModelInstance._tojson(arepair)
-                    apiInstance.response(self,'{"message":"State changedi.","repair":'+json.dumps(repairObject)+'}',200)
+                    apiInstance.response(self,'{"message":"State changed.","repair":'+json.dumps(repairObject)+'}',200)
                     return
-
-            if payload['state']=='COMPLETED' or payload['state']=='INCOMPLETE' or payload['state']=='APPROVED':
-                arepair.status = payload['state']
-                arepair.put()
-                repairObject = RepairModelInstance._tojson(arepair)
-                apiInstance.response(self,'{"message":"State changed.","repair":'+json.dumps(repairObject)+'}',200)
+            else:
+                apiInstance.response(self,'{"errors":"Invalid State change requested."}',401)
                 return
-
-            apiInstance.response(self,'{"errors":"Allowed States are APPROVED, COMPLETED and INCOMPLETE"}',401)
-            return
+            
         elif payload['method']=='update': 
             repairValidatorInstance = repairValidator()
             validatorReponse = repairValidatorInstance.validate(payload,apiInstance,self)
@@ -172,8 +171,8 @@ class repairAPI(webapp2.RequestHandler):
             RepairHelperInstance = RepairModelHelper()
             arepair.assignedTo = assignedTo
             arepair.descr = repairDescription
-            arepair.scheduledDate = scheduledDate
-            arepair.scheduledTime = scheduledTime
+            arepair.scheduleDate = scheduledDate
+            arepair.scheduleTime = scheduledTime
             arepair.put()
 
             repairObject = RepairModelInstance._tojson(arepair)
@@ -181,6 +180,20 @@ class repairAPI(webapp2.RequestHandler):
             return
         
         apiInstance.response(self,'{"errors":"Invalid Put method"}',401)
+
+    def delete(self,id):
+        apiInstance = api()
+        if not apiInstance._isallowed(self): return
+
+        RepairModelInstance = RepairModelHelper()
+        arepair = RepairModelInstance.get(id)
+        if arepair is None:
+            apiInstance.response(self,'{"errors":"Repair does not exist."}',404)
+            return
+
+        arepair.delete()
+        apiInstance.response(self,'{"status":"ok","message":"Repair deleted."}',200)
+
                     
   
 class repairValidator():

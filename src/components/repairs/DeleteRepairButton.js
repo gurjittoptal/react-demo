@@ -6,17 +6,17 @@ import { DELETE_REPAIR } from '../../actionTypes';
 
 const mapDispatchToProps = dispatch => ({
   onClick: (payload) =>
-    dispatch({ type: DELETE_USER, payload })
+    dispatch({ type: DELETE_REPAIR, payload })
 });
 
 const DeleteRepairButton = props => {
-  const repair = props.repair;
+  const repairid = props.repairid;
   const del = () => {
-    props.onClick(agent.Repairs.del(repair.uid))
+    props.onClick(agent.Repairs.del(repairid))
   };
   
   return (
-      <div className="" onClick={del}>
+      <div className="center-align" onClick={del}>
           <i className="fa fa-trash" aria-hidden="true"></i> Delete Repair
       </div>
     );

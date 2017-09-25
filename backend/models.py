@@ -57,8 +57,6 @@ class Repair(db.Model):
 
 class RepairModelHelper():
     def create(self,id,assignedToval,scheduleDateval,scheduleTimeval,createdByval,descrval,scheduleStart):
-        if assignedToval =='':
-            assignedToval = 'UNASSIGNED'
         aRepair = Repair(parent=None,key_name=id,uid=id,assignedTo=assignedToval,
             scheduleDate=scheduleDateval,status='open',scheduleTime=scheduleTimeval,createdBy=createdByval,descr=descrval)
         aRepair.scheduleStart = scheduleStart
