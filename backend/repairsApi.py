@@ -46,7 +46,7 @@ class repairsAPI(webapp2.RequestHandler):
 
         createdBy = requestUser.email
         RepairHelperInstance = RepairModelHelper()
-        aRepair = RepairHelperInstance.create(str(uuid4()),assignedTo,scheduledDate,scheduledTime,createdBy,repairDescription,int(validatorReponse['proposedStartTS']))
+        aRepair = RepairHelperInstance.create(str(uuid4()),assignedTo,scheduledDate,scheduledTime,createdBy,repairDescription,validatorReponse['proposedStartTS'])
 
         repairObj = {"key":aRepair.uid}
         apiInstance.response(self,'{"message":"Repair Successfully added","repair":'+json.dumps(repairObj)+'}')
@@ -180,9 +180,11 @@ class repairAPI(webapp2.RequestHandler):
                 if (payload['state']=='COMPLETED' or payload['state']=='INCOMPLETE' or payload['state']=='APPROVED'):
                     arepair.status = payload['state']
                     logging.info(arepair.status)
-                    if payload['state'] == 'INCOMPLETE': #Set assigned to none to avoid conflicts
+                    if payload['state'] == 'INCOMPLETE' and arepair.scheduleDate!='': #Set assigned to none to avoid conflicts
                         arepair.scheduleDate = ''
                         arepair.scheduleTime = ''
+                        arepair.isScheduled = False
+
                         
                     arepair.put()
                     repairObject = RepairModelInstance._tojson(arepair)
@@ -228,7 +230,13 @@ class repairAPI(webapp2.RequestHandler):
             if scheduledTime!='':
                 tempval = int(scheduledTime.replace(':',''))
                 arepair.scheduleTimeINT= tempval
+                arepair.scheduleStart = int(validatorReponse['proposedStartTS'])
             arepair.scheduleTime = scheduledTime
+            
+            if scheduledDate=='':
+                arepair.isScheduled = False
+
+
             arepair.put()
 
             repairObject = RepairModelInstance._tojson(arepair)
@@ -254,7 +262,7 @@ class repairAPI(webapp2.RequestHandler):
   
 class repairValidator():
     def validate(self,payload,apiInstance,requestObj):
-        ret = {'errors':'','proposedStartTS':'1'}
+        ret = {'errors':'','proposedStartTS':None}
 
         try:
             RepairPayload = payload['repair']
@@ -312,7 +320,7 @@ class repairValidator():
             if scheduledDate != '' and scheduledTime != '':
                 isProposedScheduleValid = RepairHelperInstance._checkProposedScheduleValidity(proposedStartTS)
 
-            ret['proposedStartTS'] = proposedStartTS 
+            ret['proposedStartTS'] = int(proposedStartTS)
             if isProposedScheduleValid!='OK':
                 ret['errors'] += isProposedScheduleValid+' '
 

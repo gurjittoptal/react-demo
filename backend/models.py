@@ -53,6 +53,7 @@ class Repair(db.Model):
     scheduleTime =  db.StringProperty(required=False,indexed=False)
     scheduleTimeINT =  db.IntegerProperty(required=False,indexed=True)
     scheduleStart =  db.IntegerProperty(required=False,indexed=True)
+    isScheduled =  db.BooleanProperty(required=True,indexed=True)
     createdBy =  db.StringProperty(required=True,indexed=True)
     descr =  db.TextProperty(required=True,indexed=False)
     comments = db.TextProperty(required=False,indexed=False)
@@ -60,12 +61,13 @@ class Repair(db.Model):
 class RepairModelHelper():
     def create(self,id,assignedToval,scheduleDateval,scheduleTimeval,createdByval,descrval,scheduleStart):
         aRepair = Repair(parent=None,key_name=id,uid=id,assignedTo=assignedToval,
-            scheduleDate=scheduleDateval,status='INCOMPLETE',scheduleTime=scheduleTimeval,createdBy=createdByval,descr=descrval,scheduleTimeINT=0,scheduleDateINT=0)
+            scheduleDate=scheduleDateval,status='INCOMPLETE',scheduleTime=scheduleTimeval,createdBy=createdByval,descr=descrval,isScheduled=False)
         aRepair.scheduleStart = scheduleStart
         aRepair.comments = '[]'
         if scheduleDateval!='':
             tempval = int(scheduleDateval.replace('-',''))
             aRepair.scheduleDateINT = tempval
+            aRepair.isScheduled = True
         if scheduleTimeval!='':
             tempval = int(scheduleTimeval.replace(':',''))
             aRepair.scheduleTimeINT= tempval
@@ -154,7 +156,7 @@ class RepairModelHelper():
         
         proposedStartTS = int(proposedStartTS)
         logging.info(proposedStartTS)
-        q = GqlQuery("SELECT * FROM Repair where status=:astatus and scheduleStart<:psTS order by scheduleStart desc",psTS=proposedStartTS,astatus='INCOMPLETE')
+        q = GqlQuery("SELECT * FROM Repair where status=:astatus and isScheduled=:isTrue and scheduleStart<:psTS order by scheduleStart desc",psTS=proposedStartTS,astatus='INCOMPLETE',isTrue=True)
 
         isOk = True
         prevRepair = None
@@ -163,7 +165,7 @@ class RepairModelHelper():
             if proposedStartTS- arepair.scheduleStart<REPAIRSLOTTIME:
                 isOk = False
 
-        q = GqlQuery("SELECT * FROM Repair where status=:astatus and scheduleStart>=:psTS order by scheduleStart asc",psTS=proposedStartTS,astatus='INCOMPLETE')
+        q = GqlQuery("SELECT * FROM Repair where status=:astatus and isScheduled=:isTrue and scheduleStart>=:psTS order by scheduleStart asc",psTS=proposedStartTS,astatus='INCOMPLETE',isTrue=True)
 
         tuples = []
 

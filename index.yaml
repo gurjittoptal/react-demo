@@ -17,6 +17,19 @@ indexes:
 
 - kind: Repair
   properties:
+  - name: isScheduled
+  - name: status
+  - name: scheduleStart
+
+- kind: Repair
+  properties:
+  - name: isScheduled
+  - name: status
+  - name: scheduleStart
+    direction: desc
+
+- kind: Repair
+  properties:
   - name: status
   - name: scheduleDateINT
 
