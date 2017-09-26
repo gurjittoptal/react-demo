@@ -26,7 +26,7 @@ const RepairPreview = props => {
     <tr className="repair-preview">
        <td className="text-small">{props.repair.descr}</td>
        <td className="text-small">
-            Scheduled For : {props.repair.scheduleDate}&nbsp;
+            Scheduled : {props.repair.scheduleDate}&nbsp;
             {props.repair.scheduleTime}<br/>
             Assigned To: {props.repair.assignedTo}<br/>
             <strong>{props.repair.status}</strong>
