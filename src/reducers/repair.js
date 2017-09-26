@@ -2,7 +2,6 @@ import {
   ADD_COMMENT,
   REPAIR_PAGE_LOADED, 
   REPAIR_PAGE_UNLOADED,
-  DELETE_REPAIR,
   CHANGE_REPAIR_STATE
 } from '../actionTypes';
 
@@ -32,12 +31,6 @@ export default (state = {}, action) => {
         commenterror:action.payload.error
         }
       ;
-    case DELETE_REPAIR:
-      if(action.payload && 'status' in action.payload && action.payload.status=='ok')
-        return {...state, isdeleted: true}
-      return {
-        ...state,
-        };
     case REPAIR_PAGE_LOADED:
       var arepair;
       if(action.payload[0] && 'repair' in action.payload[0])
